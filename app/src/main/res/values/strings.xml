@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">PacketSniffer</string>
+    <string name="run_vpn">Run Vpn</string>
+</resources>
