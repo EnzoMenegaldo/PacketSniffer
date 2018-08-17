@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.ICollectionStrategy;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.Precision;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.ResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.database.DBHelper;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
@@ -22,21 +22,21 @@ public class StrategyManager {
     private ICollectionStrategy strategy;
 
 
-    @Precision(false)
+    @BPrecision
     public static boolean storePacketInFile;
-    @Precision(false)
+    @BPrecision(false)
     public static boolean storePacketInDB;
-    @Precision(false)
+    @BPrecision(false)
     public static boolean storeOutgoing;
-    @Precision(false)
+    @BPrecision(false)
     public static boolean storeIncoming;
-    @Precision(false)
+    @BPrecision(false)
     public static boolean storeTCP;
-    @Precision(false)
+    @BPrecision(false)
     public static boolean storeUDP;
-    @Precision(false)
+    @BPrecision(false)
     public static boolean storeHTTP;
-    @Precision(false)
+    @BPrecision(false)
     public static boolean storeHTTPS;
 
     private StrategyManager(){}

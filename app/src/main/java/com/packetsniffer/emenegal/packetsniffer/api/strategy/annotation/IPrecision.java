@@ -10,8 +10,7 @@ import java.lang.annotation.Target;
 @IndexAnnotated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Precision{
-    boolean value() default false;
-    int priority() default 1;
+public @interface IPrecision {
+    int lower() default 1;
+    int higher() default 1;
 }
-
