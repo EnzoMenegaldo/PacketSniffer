@@ -15,7 +15,6 @@
 */
 package com.packetsniffer.emenegal.packetsniffer;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,11 +22,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.net.VpnService;
-import android.nfc.Tag;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
@@ -36,7 +32,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
+import com.packetsniffer.emenegal.packetsniffer.packet.PacketPublisher;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
+import com.packetsniffer.emenegal.packetsniffer.session.SessionHandler;
 import com.packetsniffer.emenegal.packetsniffer.socket.IProtectSocket;
 import com.packetsniffer.emenegal.packetsniffer.socket.IReceivePacket;
 import com.packetsniffer.emenegal.packetsniffer.socket.SocketDataPublisher;
@@ -51,19 +50,17 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class PacketSnifferService extends VpnService implements Handler.Callback,
 		Runnable, IProtectSocket, IReceivePacket {
 
+	public static final String TAG = PacketSnifferService.class.getSimpleName();
 	public static PackageManager PackageManager ;
 	public static final String DIRECTORY_FILE = "/pcap";
 	public static final String STOP_SERVICE_INTENT = "stop_service";
-	private static final String TAG = "PacketSniffer";
 
 	private static final int MAX_PACKET_LEN = 1500;
 
@@ -73,8 +70,10 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 	private boolean serviceValid;
 	private SocketNIODataService dataService;
 	private Thread dataServiceThread;
-	private SocketDataPublisher packetbgWriter;
-	private Thread packetQueueThread;
+	private SocketDataPublisher packetbgWriterInFile;
+	private PacketPublisher packetbgWriterInDB;
+	private Thread packetForFileQueueThread;
+	private Thread packetFoDBQueueThread;
 	private File traceDir;
 	private PCapFileWriter pcapOutput;
 	private FileOutputStream timeStream;
@@ -184,17 +183,12 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 	 */
 	@Override
 	public void receive(byte[] packet) {
-		if (pcapOutput != null) {
-			try {
-				pcapOutput.addPacket(packet, 0, packet.length, System.currentTimeMillis() * 1000000);
-			} catch (IOException e) {
-				Log.e(TAG, "pcapOutput.addPacket IOException :" + e.getMessage());
-				e.printStackTrace();
-			}
-		}else{
-			Log.e(TAG, "overrun from capture: length:"+packet.length);
-		}
+		StrategyManager.INSTANCE.storePacket(packet,pcapOutput);
+	}
 
+	@Override
+	public void receive(Packet packet) {
+		StrategyManager.INSTANCE.storePacket(packet);
 	}
 
 	/**
@@ -395,10 +389,16 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 		dataServiceThread.start();
 
 		//background task for writing packet data to pcap file
-		packetbgWriter = new SocketDataPublisher();
-		packetbgWriter.subscribe(this);
-		packetQueueThread = new Thread(packetbgWriter);
-		packetQueueThread.start();
+		packetbgWriterInFile = new SocketDataPublisher();
+		packetbgWriterInFile.subscribe(this);
+		packetForFileQueueThread = new Thread(packetbgWriterInFile);
+		packetForFileQueueThread.start();
+
+		//background task for writing packet to database
+		packetbgWriterInDB = new PacketPublisher();
+		packetbgWriterInDB.subscribe(this);
+		packetFoDBQueueThread = new Thread(packetbgWriterInDB);
+		packetFoDBQueueThread.start();
 
 		byte[] data;
 		int length;
@@ -452,16 +452,19 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 		if (dataService !=  null)
 			dataService.setShutdown(true);
 
-		if (packetbgWriter != null)
-			packetbgWriter.setShuttingDown(true);
+		if (packetbgWriterInFile != null)
+			packetbgWriterInFile.setShuttingDown(true);
+
+		if (packetbgWriterInDB != null)
+			packetbgWriterInDB.setShuttingDown(true);
 
 		closeTraceFiles();
 
 		if(dataServiceThread != null){
 			dataServiceThread.interrupt();
 		}
-		if(packetQueueThread != null){
-			packetQueueThread.interrupt();
+		if(packetForFileQueueThread != null){
+			packetForFileQueueThread.interrupt();
 		}
 
 		try {
@@ -509,6 +512,7 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 		for(ResolveInfo info : resolveInfos)
 			browserList.add(info.activityInfo.packageName);
 
+		browserList.add(getApplicationContext().getPackageName());
 		return browserList;
 	}
 

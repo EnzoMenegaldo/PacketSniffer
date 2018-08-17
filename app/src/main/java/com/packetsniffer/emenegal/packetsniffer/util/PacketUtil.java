@@ -473,7 +473,7 @@ public class PacketUtil {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}*/
-		return false;
+		return true;
 	}
 
 }

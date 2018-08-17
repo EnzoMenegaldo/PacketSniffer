@@ -14,26 +14,25 @@
  * limitations under the License.
 */
 
-package com.packetsniffer.emenegal.packetsniffer;
+package com.packetsniffer.emenegal.packetsniffer.session;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
 
-import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
+import com.packetsniffer.emenegal.packetsniffer.IClientPacketWriter;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPPacketFactory;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 
+import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
+import com.packetsniffer.emenegal.packetsniffer.packet.PacketManager;
 import com.packetsniffer.emenegal.packetsniffer.socket.SocketData;
 import com.packetsniffer.emenegal.packetsniffer.tls.ServerNameExtension;
 import com.packetsniffer.emenegal.packetsniffer.tls.TLSHeader;
@@ -56,7 +55,7 @@ import static org.apache.commons.httpclient.params.HttpMethodParams.HTTP_ELEMENT
  * @author Borey Sao
  * Date: May 22, 2014
  */
-class SessionHandler {
+public class SessionHandler {
 	private static final String TAG = "SessionHandler";
 	public static final int HTTP_PORT = 80;
 	public static final int HTTPS_PORT = 443;
@@ -73,7 +72,7 @@ class SessionHandler {
 		packetData = SocketData.getInstance();
 	}
 
-	void setWriter(IClientPacketWriter writer){
+	public void setWriter(IClientPacketWriter writer){
 		this.writer = writer;
 	}
 
@@ -106,11 +105,17 @@ class SessionHandler {
 		int sourcePort = tcpheader.getSourcePort();
 		int destinationPort = tcpheader.getDestinationPort();
 
+
 		//https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html#duplicate()
-		if(tcpheader.getDestinationPort() == HTTP_PORT)
-			checkHTTPProtocol(clientPacketData.duplicate(),ipHeader,tcpheader);
-		else if(tcpheader.getDestinationPort() == HTTPS_PORT)
-			checkTLSProtocol(clientPacketData.duplicate(), ipHeader, tcpheader);
+		if(tcpheader.getDestinationPort() == HTTP_PORT) {
+			//if (CollectionStrategy.storeHTTP)
+				checkHTTPProtocol(clientPacketData.duplicate(), ipHeader, tcpheader);
+		}
+		else if(tcpheader.getDestinationPort() == HTTPS_PORT){
+				//if(CollectionStrategy.storeHTTPS)
+					checkTLSProtocol(clientPacketData.duplicate(), ipHeader, tcpheader);
+		}
+
 
 
 
@@ -200,10 +205,10 @@ class SessionHandler {
 	 * handle each packet from each vpn client
 	 * @param stream ByteBuffer to be read
 	 */
-	void handlePacket(@NonNull ByteBuffer stream) throws PacketHeaderException {
+	public void handlePacket(@NonNull ByteBuffer stream) throws PacketHeaderException {
 		final byte[] rawPacket = new byte[stream.limit()];
 		stream.get(rawPacket, 0, stream.limit());
-		//packetData.addData(rawPacket);
+		packetData.addData(rawPacket);
 		stream.rewind();
 
 		final IPv4Header ipHeader = IPPacketFactory.createIPv4Header(stream);
@@ -230,7 +235,10 @@ class SessionHandler {
 		byte[] data = TCPPacketFactory.createRstData(ip, tcp, dataLength);
 		try {
 			writer.write(data);
-			//packetData.addData(data);
+
+			//if(UnPluggedResourceStrategy.storePacketInFile && UnPluggedResourceStrategy.incoming)
+			packetData.addData(data);
+
 			Log.d(TAG,"Sent RST Packet to client with dest => " +
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
 					tcp.getDestinationPort());
@@ -243,7 +251,7 @@ class SessionHandler {
 		byte[] data = TCPPacketFactory.createResponseAckData(ip, tcp, tcp.getSequenceNumber()+1);
 		try {
 			writer.write(data);
-			//packetData.addData(data);
+			packetData.addData(data);
 			Log.d(TAG,"Sent last ACK Packet to client with dest => " +
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
 					tcp.getDestinationPort());
@@ -258,7 +266,8 @@ class SessionHandler {
 		byte[] data = TCPPacketFactory.createFinAckData(ip, tcp, ack, seq, true, true);
 		try {
 			writer.write(data);
-			//packetData.addData(data);
+			packetData.addData(data);
+
 			if(session != null){
 				session.getSelectionKey().cancel();
 				SessionManager.INSTANCE.closeSession(session);
@@ -276,7 +285,7 @@ class SessionHandler {
 		final ByteBuffer stream = ByteBuffer.wrap(data);
 		try {
 			writer.write(data);
-			//packetData.addData(data);
+			packetData.addData(data);
 			Log.d(TAG,"00000000000 FIN-ACK packet data to vpn client 000000000000");
 			IPv4Header vpnip = null;
 			try {
@@ -330,7 +339,7 @@ class SessionHandler {
 		byte[] data = TCPPacketFactory.createResponseAckData(ipheader, tcpheader, acknumber);
 		try {
 			writer.write(data);
-			//packetData.addData(data);
+			packetData.addData(data);
 		} catch (IOException e) {
 			Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
 		}
@@ -343,7 +352,7 @@ class SessionHandler {
 		byte[] data = TCPPacketFactory.createResponseAckData(ipHeader, tcpheader, ackNumber);
 		try {
 			writer.write(data);
-			//packetData.addData(data);
+			packetData.addData(data);
 		} catch (IOException e) {
 			Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
 		}
@@ -422,7 +431,7 @@ class SessionHandler {
 
 		try {
 			writer.write(packet.getBuffer());
-			//packetData.addData(packet.getBuffer());
+			packetData.addData(packet.getBuffer());
 			Log.d(TAG,"Send SYN-ACK to client");
 		} catch (IOException e) {
 			Log.e(TAG,"Error sending data to client: "+e.getMessage());
@@ -452,7 +461,7 @@ class SessionHandler {
                             if(PacketUtil.isInterestingServerName(serverName) && PacketUtil.isNewConnection(serverName)) {
                                 Packet packet = new Packet(ipHeader, tcpHeader, tcpPayload);
                                 packet.setHostName(serverName);
-                                PacketManager.add(packet, MainActivity.getContext());
+								PacketManager.getInstance().addPacket(packet);
                             }
                         }
                     }
@@ -481,7 +490,7 @@ class SessionHandler {
                             if(PacketUtil.isInterestingServerName(header.getValue())){
                                 Packet packet = new Packet(ipHeader, tcpHeader, tcpPayload);
                                 packet.setHostName(header.getValue());
-                                PacketManager.add(packet, MainActivity.getContext());
+                                PacketManager.getInstance().addPacket(packet);
                             }
                             break;
 						}

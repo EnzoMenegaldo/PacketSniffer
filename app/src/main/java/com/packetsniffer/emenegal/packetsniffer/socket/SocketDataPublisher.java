@@ -53,9 +53,8 @@ public class SocketDataPublisher implements Runnable {
 		while(!isShuttingDown()) {
 			byte[] packetData = data.getData();
 			if(packetData != null) {
-				for(IReceivePacket subscriber: subscribers){
+				for(IReceivePacket subscriber: subscribers)
 					subscriber.receive(packetData);
-				}
 			} else {
 				try {
 					Thread.sleep(100);

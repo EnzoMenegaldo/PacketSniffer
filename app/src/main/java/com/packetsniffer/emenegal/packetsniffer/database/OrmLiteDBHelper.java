@@ -7,6 +7,8 @@ import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.support.ConnectionSource;
+
+import java.io.File;
 import java.sql.SQLException;
 // Start of user code protected additional OrmLiteDBHelper imports
 import com.j256.ormlite.table.TableUtils;
@@ -20,7 +22,7 @@ public class OrmLiteDBHelper extends OrmLiteSqliteOpenHelper{
 	public static final String LOG_TAG = "OrmLiteDBHelper";
 	
 	// name of the database file for your application -- change to something appropriate for your app
-	private static final String DATABASE_NAME = "MobilePrivacyProfiler.db";
+	private static final String DATABASE_NAME = "packets.db";
 	// any time you make changes to your database objects, you may have to increase the database version
 	// Start of user code OrmLiteDBHelper DB version MobilePrivacyProfiler
 	private static final int DATABASE_VERSION = 1;
@@ -33,7 +35,8 @@ public class OrmLiteDBHelper extends OrmLiteSqliteOpenHelper{
 	
 
 	public OrmLiteDBHelper(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		super(context, context.getExternalFilesDir(null).getAbsolutePath()
+				+ File.separator + DATABASE_NAME , null, DATABASE_VERSION);
 	}
 
 	/**
@@ -89,8 +92,6 @@ public class OrmLiteDBHelper extends OrmLiteSqliteOpenHelper{
 		return packetRuntimeDao;
 	}
 
-	
-	
 
 
 	/**

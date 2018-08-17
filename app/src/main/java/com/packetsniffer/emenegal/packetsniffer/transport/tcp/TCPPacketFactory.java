@@ -20,7 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.packetsniffer.emenegal.packetsniffer.Packet;
+import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPPacketFactory;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 import com.packetsniffer.emenegal.packetsniffer.util.PacketUtil;

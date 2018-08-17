@@ -4,8 +4,8 @@ import android.util.Log;
 
 
 import com.packetsniffer.emenegal.packetsniffer.IClientPacketWriter;
-import com.packetsniffer.emenegal.packetsniffer.Session;
-import com.packetsniffer.emenegal.packetsniffer.SessionManager;
+import com.packetsniffer.emenegal.packetsniffer.session.Session;
+import com.packetsniffer.emenegal.packetsniffer.session.SessionManager;
 import com.packetsniffer.emenegal.packetsniffer.util.PacketUtil;
 
 import java.io.IOException;

@@ -28,6 +28,7 @@ public class SocketData {
 	private static final SocketData instance = new SocketData();
 	private Queue<byte[]> data;
 
+
 	public static SocketData getInstance(){
 		return instance;
 	}
@@ -43,4 +44,5 @@ public class SocketData {
 	public synchronized byte[] getData() {
 			return data.poll();
 	}
+
 }//end class

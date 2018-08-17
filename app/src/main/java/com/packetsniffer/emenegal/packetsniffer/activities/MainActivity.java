@@ -1,28 +1,37 @@
 package com.packetsniffer.emenegal.packetsniffer.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.VpnService;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.TextView;
 
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.BatteryUsageReceiver;
 import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.R;
+import com.packetsniffer.emenegal.packetsniffer.benchmark.Benchmark;
+import com.packetsniffer.emenegal.packetsniffer.database.OrmLiteDBHelper;
+import com.packetsniffer.emenegal.packetsniffer.StrategyManager;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.UnPluggedResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.util.PhoneStateUtil;
 
-public class MainActivity extends Activity {
+
+public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
     private static final int REQUEST_CODE_VPN = 0;
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private BatteryUsageReceiver batteryUsageReceiver;
     private static Context context;
+    private Handler handler;
+    private Benchmark benchmark;
+
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
@@ -50,7 +59,41 @@ public class MainActivity extends Activity {
             }
         });
 
+        handler = new Handler();
+        benchmark = new Benchmark(handler,context);
+
+        batteryUsageReceiver = BatteryUsageReceiver.INSTANCE;
+        registerReceiver(batteryUsageReceiver,batteryUsageReceiver.getIntentFilter());
+
+        Button btnBenchmark = (Button)findViewById(R.id.btnRunBenchmark);
+        btnBenchmark.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                benchmark.execute();
+            }
+        });
+
         setupVpn();
+
+        StrategyManager.INSTANCE.setStrategy(new UnPluggedResourceStrategy());
+
+        //PhoneResourcesUtil.INSTANCE.startCpuMonitoring();
+    }
+    protected void onResume() {
+        super.onResume();
+        super.registerReceiver(batteryUsageReceiver, batteryUsageReceiver.getIntentFilter());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(batteryUsageReceiver);
+        super.onDestroy();
     }
 
     public static Context getContext(){ return context; }
@@ -74,5 +117,4 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
     }
-
 }

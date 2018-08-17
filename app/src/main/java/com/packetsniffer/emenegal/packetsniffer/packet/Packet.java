@@ -14,13 +14,14 @@
  * limitations under the License.
 */
 
-package com.packetsniffer.emenegal.packetsniffer;
+package com.packetsniffer.emenegal.packetsniffer.packet;
 
 
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
 
+import com.packetsniffer.emenegal.packetsniffer.database.PacketModel;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 import com.packetsniffer.emenegal.packetsniffer.*;
 import com.packetsniffer.emenegal.packetsniffer.transport.ITransportHeader;
@@ -47,6 +48,11 @@ public class Packet {
 	@NonNull private String hostName;
 	@NonNull private final Date time;
 
+	private boolean isHttp;
+
+	private boolean isHttps;
+
+	private boolean outgoing;
 
 	public Packet(@NonNull IPv4Header ipHeader, @NonNull ITransportHeader transportHeader, @NonNull byte[] data) {
 		this.ipHeader = ipHeader;
@@ -77,8 +83,6 @@ public class Packet {
 	 @return the uid of the application which has sent this packet
 	 */
 	private native int get_uid(int ipVersion, int protocol, String sourceIP, int sourcePort, String destinationIP, int destinationPort);
-
-
 
 	public byte getProtocol() {
 		return ipHeader.getProtocol();
@@ -127,6 +131,30 @@ public class Packet {
 		this.hostName = hostName;
 	}
 
+	public boolean isHttp() {
+		return isHttp;
+	}
+
+	public void setHttp(boolean http) {
+		isHttp = http;
+	}
+
+	public boolean isHttps() {
+		return isHttps;
+	}
+
+	public void setHttps(boolean https) {
+		isHttps = https;
+	}
+
+	public boolean isOutgoing() {
+		return outgoing;
+	}
+
+	public void setOutgoing(boolean outgoing) {
+		this.outgoing = outgoing;
+	}
+
 	/**
 	 * the whole packet data as an array of byte
 	 * @return byte[]
@@ -136,5 +164,12 @@ public class Packet {
 		return buffer;
 	}
 	
-
+	public PacketModel getPacketModel(){
+		PacketModel packetModel = new PacketModel();
+		packetModel.setApplication(applicationName);
+		packetModel.setDate(time);
+		packetModel.setHostname(hostName);
+		packetModel.setIpDestination(PacketUtil.intToIPAddress(ipHeader.getDestinationIP()));
+		return packetModel;
+	}
 }

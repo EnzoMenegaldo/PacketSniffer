@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.packetsniffer.emenegal.packetsniffer.IClientPacketWriter;
-import com.packetsniffer.emenegal.packetsniffer.Session;
-import com.packetsniffer.emenegal.packetsniffer.SessionManager;
+import com.packetsniffer.emenegal.packetsniffer.session.Session;
+import com.packetsniffer.emenegal.packetsniffer.session.SessionManager;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPPacketFactory;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
@@ -201,7 +201,7 @@ class SocketDataReaderWorker implements Runnable {
 				session.getTimestampSender(), session.getTimestampReplyto());
 		try {
 			writer.write(data);
-			//pData.addData(data);
+			pData.addData(data);
 		} catch (IOException e) {
 			Log.e(TAG,"Failed to send FIN packet: " + e.getMessage());
 		}
@@ -231,7 +231,7 @@ class SocketDataReaderWorker implements Runnable {
 					//write to client
 					writer.write(packetData);
 					//publish to packet subscriber
-					//pData.addData(packetData);
+					pData.addData(packetData);
 					Log.d(TAG,"SDR: sent " + len + " bytes to UDP client, packetData.length: "
 							+ packetData.length);
 					buffer.clear();
