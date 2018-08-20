@@ -6,7 +6,7 @@ import java.util.Queue;
 
 public class PacketManager {
 
-    private static final PacketManager instance = new PacketManager();
+    public static final PacketManager INSTANCE = new PacketManager();
     private Queue<Packet> packets;
 
     private boolean storeHttp;
@@ -15,10 +15,6 @@ public class PacketManager {
 
     private PacketManager(){
         packets = new LinkedList<>();
-    }
-
-    public static PacketManager getInstance(){
-        return instance;
     }
 
     public synchronized void addPacket(Packet packet) {

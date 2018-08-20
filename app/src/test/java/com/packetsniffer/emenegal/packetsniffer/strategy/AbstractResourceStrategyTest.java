@@ -1,9 +1,11 @@
 package com.packetsniffer.emenegal.packetsniffer.strategy;
 
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.AbstractResourceStrategy;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.AbstractResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.Util;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.method.ExponentialMethod;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.method.LinearMethod;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,13 +26,13 @@ public class AbstractResourceStrategyTest {
     @BPrecision(value = false,priority = 2)
     public static boolean bool3;
 
-    @IPrecision(lower = 150 ,higher = 400)
-    public static int int1;
+    @IPrecision(lower = 150 ,higher = 400, method = ExponentialMethod.class, params = {2})
+    public static double int1;
 
-    @IPrecision(lower = 150 ,higher = 400)
-    public static int int2;
+    @IPrecision(lower = 350 ,higher = 4000,method = LinearMethod.class)
+    public static double int2;
 
-    AbstractResourceStrategy strategy;
+    private AbstractResourceStrategy strategy;
 
     @Before
     public void init(){
@@ -72,10 +74,11 @@ public class AbstractResourceStrategyTest {
         assertTrue(bool3);
     }
 
+
     @Test
     public void updateIPrecisionFieldValues() {
-        strategy.updateIPrecisionFieldValues(666);
-        assertEquals(int1,666);
-        assertEquals(int2,666);
+        strategy.updateIPrecisionFieldValues(50);
+        assertEquals(int1,2500,0);
+        assertEquals(int2,2175,0);
     }
 }

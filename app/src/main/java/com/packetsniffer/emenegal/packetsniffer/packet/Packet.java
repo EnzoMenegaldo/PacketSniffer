@@ -24,14 +24,27 @@ import android.support.annotation.NonNull;
 import com.packetsniffer.emenegal.packetsniffer.database.PacketModel;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 import com.packetsniffer.emenegal.packetsniffer.*;
+import com.packetsniffer.emenegal.packetsniffer.session.SessionHandler;
+import com.packetsniffer.emenegal.packetsniffer.tls.ServerNameExtension;
+import com.packetsniffer.emenegal.packetsniffer.tls.TLSHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.ITransportHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.tcp.TCPHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.udp.UDPHeader;
+import com.packetsniffer.emenegal.packetsniffer.util.HTTPUtil;
 import com.packetsniffer.emenegal.packetsniffer.util.PacketUtil;
 
 
+import org.apache.commons.httpclient.Header;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.List;
+
+import static org.apache.commons.httpclient.params.HttpMethodParams.HTTP_ELEMENT_CHARSET;
 
 /**
  * Data structure that encapsulate both IPv4Header and TCPHeader
@@ -39,6 +52,9 @@ import java.util.Date;
  * Date: May 27, 2014
  */
 public class Packet {
+	public static final int HTTP_PORT = 80;
+	public static final int HTTPS_PORT = 443;
+
 	@NonNull private final IPv4Header ipHeader;
 	@NonNull private final ITransportHeader transportHeader;
 	@NonNull private final byte[] buffer;
@@ -171,5 +187,70 @@ public class Packet {
 		packetModel.setHostname(hostName);
 		packetModel.setIpDestination(PacketUtil.intToIPAddress(ipHeader.getDestinationIP()));
 		return packetModel;
+	}
+
+	/**
+	 * We try to create a tlsHeader using the tcp payload.
+	 * If it's actually a TLSPacket then we check if it's the first packet.
+	 * If it is then we can get the server name and finally we save this packet in the database .
+	 */
+	public boolean checkTLSProtocol(){
+		if(transportHeader.getDestinationPort() == HTTPS_PORT){
+			ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+			if(byteBuffer.hasRemaining()) {
+				final byte[] tcpPayload = byteBuffer.array();
+				byte type = byteBuffer.get();
+				if(type == TLSHeader.HANDSHAKE){
+					short version = byteBuffer.getShort();
+					//We check if it's a SSL protocol
+					if(version == TLSHeader.SSLv3 || version == TLSHeader.TLSv1) {
+						TLSHeader tlsHeader = new TLSHeader(byteBuffer, type, version);
+						if (tlsHeader.isFirstHandshakePacket()) {
+							ServerNameExtension serverNameExtension = tlsHeader.getHandshakeHeader().getServerNameExtension();
+							// if there is a server name extension,we get the server name and we create a packet with these information then we save it in the DataBase
+							if (serverNameExtension != null) {
+								String serverName = new String(serverNameExtension.getServerNameIndicationExtension().getServerName(), Charset.forName("UTF-8"));
+								if(PacketUtil.isInterestingServerName(serverName) && PacketUtil.isNewConnection(serverName)) {
+									this.setHostName(serverName);
+									PacketManager.INSTANCE.addPacket(this);
+								}
+							}
+						}
+					}
+				}
+			}
+			return true;
+		}else
+			return false;
+	}
+
+	/**
+	 * We look into each packet to find those containing http protocol
+	 */
+	public void checkHTTProtocol(){
+		//Avoid packet which are destined to another port than 80
+		if(transportHeader.getDestinationPort() == HTTP_PORT){
+			ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+			if(byteBuffer.hasRemaining()) {
+				final byte[] tcpPayload = byteBuffer.array();
+				try {
+					ByteBuffer tmpBuffer = byteBuffer.slice();
+					List<Header> headers = HTTPUtil.parseHeaders(new ByteArrayInputStream(tmpBuffer.array()),HTTP_ELEMENT_CHARSET);
+					for(Header header : headers){
+						if(header.getName().equals("Host")){
+							//Add the packet to the DataBase
+							if(PacketUtil.isInterestingServerName(header.getValue())){
+								this.setHostName(header.getValue());
+								PacketManager.INSTANCE.addPacket(this);
+							}
+							break;
+						}
+					}
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

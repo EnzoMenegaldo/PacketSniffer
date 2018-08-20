@@ -6,8 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
-import com.packetsniffer.emenegal.packetsniffer.StrategyManager;
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.PluggedResourceStrategy;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.UnPluggedResourceStrategy;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -48,6 +49,7 @@ public class BatteryUsageReceiver extends BroadcastReceiver{
                 battery_level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                 try {
                     bw.write((new Date()).getTime()-startingTime+","+battery_level+"\n");
+                    bw.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

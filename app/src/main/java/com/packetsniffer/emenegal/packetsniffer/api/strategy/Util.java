@@ -61,7 +61,7 @@ public class Util {
         }else{
             for(Field field : fields) {
                 try {
-                    field.setInt(field.getClass(), field.getAnnotation(IPrecision.class).lower());
+                    field.setDouble(field.getClass(), field.getAnnotation(IPrecision.class).lower());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }

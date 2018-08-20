@@ -32,6 +32,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.StrategyManager;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packet.PacketPublisher;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
@@ -183,12 +184,12 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 	 */
 	@Override
 	public void receive(byte[] packet) {
-		StrategyManager.INSTANCE.storePacket(packet,pcapOutput);
+		StorageManager.INSTANCE.storePacket(packet,pcapOutput);
 	}
 
 	@Override
 	public void receive(Packet packet) {
-		StrategyManager.INSTANCE.storePacket(packet);
+		StorageManager.INSTANCE.storePacket(packet);
 	}
 
 	/**

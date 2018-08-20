@@ -57,8 +57,6 @@ import static org.apache.commons.httpclient.params.HttpMethodParams.HTTP_ELEMENT
  */
 public class SessionHandler {
 	private static final String TAG = "SessionHandler";
-	public static final int HTTP_PORT = 80;
-	public static final int HTTPS_PORT = 443;
 
 	private static final SessionHandler handler = new SessionHandler();
 	private IClientPacketWriter writer;
@@ -107,16 +105,10 @@ public class SessionHandler {
 
 
 		//https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html#duplicate()
-		if(tcpheader.getDestinationPort() == HTTP_PORT) {
-			//if (CollectionStrategy.storeHTTP)
-				checkHTTPProtocol(clientPacketData.duplicate(), ipHeader, tcpheader);
-		}
-		else if(tcpheader.getDestinationPort() == HTTPS_PORT){
-				//if(CollectionStrategy.storeHTTPS)
-					checkTLSProtocol(clientPacketData.duplicate(), ipHeader, tcpheader);
-		}
-
-
+		Packet packet = new Packet(ipHeader,tcpheader,clientPacketData.duplicate().array());
+		packet.checkTLSProtocol();
+		packet.checkHTTProtocol();
+		PacketManager.INSTANCE.addPacket(packet);
 
 
 		if(tcpheader.isSYN()) {
@@ -235,8 +227,6 @@ public class SessionHandler {
 		byte[] data = TCPPacketFactory.createRstData(ip, tcp, dataLength);
 		try {
 			writer.write(data);
-
-			//if(UnPluggedResourceStrategy.storePacketInFile && UnPluggedResourceStrategy.incoming)
 			packetData.addData(data);
 
 			Log.d(TAG,"Sent RST Packet to client with dest => " +
@@ -437,74 +427,5 @@ public class SessionHandler {
 			Log.e(TAG,"Error sending data to client: "+e.getMessage());
 		}
 	}
-
-	/**
-	 * We try to create a tlsHeader using the tcp payload.
-	 * If it's actually a TLSPacket then we check if it's the first packet.
-	 * If it is then we can get the server name and finally we save this packet in the database .
-	 * @param stream
-	 */
-	public void checkTLSProtocol(ByteBuffer stream, IPv4Header ipHeader, TCPHeader tcpHeader){
-		if(stream.hasRemaining()) {
-			final byte[] tcpPayload = stream.array();
-			byte type = stream.get();
-			if(type == TLSHeader.HANDSHAKE){
-                short version = stream.getShort();
-                //We check if it's a SSL protocol
-                if(version == TLSHeader.SSLv3 || version == TLSHeader.TLSv1) {
-                    TLSHeader tlsHeader = new TLSHeader(stream, type, version);
-                    if (tlsHeader.isFirstHandshakePacket()) {
-                        ServerNameExtension serverNameExtension = tlsHeader.getHandshakeHeader().getServerNameExtension();
-                        // if there is a server name extension,we get the server name and we create a packet with these information then we save it in the DataBase
-                        if (serverNameExtension != null) {
-                            String serverName = new String(serverNameExtension.getServerNameIndicationExtension().getServerName(), Charset.forName("UTF-8"));
-                            if(PacketUtil.isInterestingServerName(serverName) && PacketUtil.isNewConnection(serverName)) {
-                                Packet packet = new Packet(ipHeader, tcpHeader, tcpPayload);
-                                packet.setHostName(serverName);
-								PacketManager.getInstance().addPacket(packet);
-                            }
-                        }
-                    }
-                }
-			}
-		}
-	}
-
-	/**
-	 * We look into each packet to find those containing http protocol
-	 * @param stream
-	 * @param ipHeader
-	 * @param tcpHeader
-	 */
-	public void checkHTTPProtocol(ByteBuffer stream, IPv4Header ipHeader, TCPHeader tcpHeader){
-		//Avoid packet which are destined to another port than 80
-		if(tcpHeader.getDestinationPort() == HTTP_PORT){
-			if(stream.hasRemaining()) {
-				final byte[] tcpPayload = stream.array();
-				try {
-					ByteBuffer tmpBuffer = stream.slice();
-					List<Header> headers = HTTPUtil.parseHeaders(new ByteArrayInputStream(tmpBuffer.array()),HTTP_ELEMENT_CHARSET);
-					for(Header header : headers){
-						if(header.getName().equals("Host")){
-							//Add the packet to the DataBase
-                            if(PacketUtil.isInterestingServerName(header.getValue())){
-                                Packet packet = new Packet(ipHeader, tcpHeader, tcpPayload);
-                                packet.setHostName(header.getValue());
-                                PacketManager.getInstance().addPacket(packet);
-                            }
-                            break;
-						}
-					}
-
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-
-
-
 
 }//end class

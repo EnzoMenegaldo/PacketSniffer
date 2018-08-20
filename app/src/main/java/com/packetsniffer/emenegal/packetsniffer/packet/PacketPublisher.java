@@ -15,7 +15,7 @@ public class PacketPublisher implements Runnable{
     private volatile boolean isShuttingDown = false;
 
     public PacketPublisher(){
-        packetManager = PacketManager.getInstance();
+        packetManager = PacketManager.INSTANCE;
         subscribers = new ArrayList<>();
     }
 

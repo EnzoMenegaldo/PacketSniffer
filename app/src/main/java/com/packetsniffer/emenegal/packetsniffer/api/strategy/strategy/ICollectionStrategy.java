@@ -1,4 +1,4 @@
-package com.packetsniffer.emenegal.packetsniffer.api.strategy;
+package com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy;
 
 
 public interface ICollectionStrategy {

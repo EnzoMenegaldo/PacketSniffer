@@ -17,8 +17,9 @@ import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.R;
 import com.packetsniffer.emenegal.packetsniffer.benchmark.Benchmark;
 import com.packetsniffer.emenegal.packetsniffer.database.OrmLiteDBHelper;
-import com.packetsniffer.emenegal.packetsniffer.StrategyManager;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.UnPluggedResourceStrategy;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.StrategyManager;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.UnPluggedResourceStrategy;
+import com.packetsniffer.emenegal.packetsniffer.util.PhoneResourcesUtil;
 import com.packetsniffer.emenegal.packetsniffer.util.PhoneStateUtil;
 
 
@@ -77,6 +78,7 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
         StrategyManager.INSTANCE.setStrategy(new UnPluggedResourceStrategy());
 
+        PhoneResourcesUtil.INSTANCE.getAvailableMemory();
         //PhoneResourcesUtil.INSTANCE.startCpuMonitoring();
     }
     protected void onResume() {

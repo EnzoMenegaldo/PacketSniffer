@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.util.Date;
 
 import static android.content.Context.ACTIVITY_SERVICE;
@@ -20,14 +19,16 @@ import static android.content.Context.ACTIVITY_SERVICE;
 public class PhoneResourcesUtil {
 
     public static final PhoneResourcesUtil INSTANCE = new PhoneResourcesUtil();
-    private static final String cpu_fileName = "cpu_log.txt";
-    private static final String memory_fileName = "memory_log.txt";
-    private boolean cpu_monitoring = true;
+    private static final String cpu_fileName = "cpu_log";
+    private static final String memory_fileName = "memory_log";
+    private boolean monitoring = true;
+    private final long startingTime = new Date().getTime();
+
 
     public static BufferedWriter bw;
 
     private PhoneResourcesUtil(){
-        File mem_file = new File(MainActivity.getContext().getExternalFilesDir(null) + File.separator + cpu_fileName + "_" +(new Date()).getTime());
+        File mem_file = new File(MainActivity.getContext().getExternalFilesDir(null) + File.separator + memory_fileName + "_" +(new Date()).getTime()+".txt");
         try {
             if(!mem_file.exists()) {
                 mem_file.createNewFile();
@@ -47,9 +48,16 @@ public class PhoneResourcesUtil {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) MainActivity.getContext().getSystemService(ACTIVITY_SERVICE);
         activityManager.getMemoryInfo(mi);
+        int maxMemory = activityManager.getMemoryClass();
+
+        //Runtime.getRuntime().gc();
+        long memoryAvailable = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
         //Percentage can be calculated for API 16+
-        return mi.availMem / (double)mi.totalMem * 100.0;
+        //return mi.availMem / (double)mi.totalMem * 100.0;
+
+        https://stackoverflow.com/questions/6073744/android-how-to-check-how-much-memory-is-remaining/41373601#41373601
+        return memoryAvailable/1048576; // in MB
     }
 
     /**
@@ -97,10 +105,12 @@ public class PhoneResourcesUtil {
         new Thread(){
             @Override
             public void run(){
-                while (cpu_monitoring) {
+                while (monitoring) {
                     try {
-                        bw.write(getAvailableMemory()+"\n");
-                    } catch (IOException e) {
+                        bw.write(((new Date()).getTime()-startingTime)/1000+","+getAvailableMemory()+"\n");
+                        bw.flush();
+                        Thread.sleep(1000);
+                    } catch (IOException | InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -110,7 +120,7 @@ public class PhoneResourcesUtil {
 
     public void stopCpuMonitoring(){
         try {
-            cpu_monitoring = false;
+            monitoring = false;
             bw.close();
         } catch (IOException e) {
 

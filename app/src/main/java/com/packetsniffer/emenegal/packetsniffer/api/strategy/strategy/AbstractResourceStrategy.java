@@ -1,6 +1,7 @@
-package com.packetsniffer.emenegal.packetsniffer.api.strategy;
+package com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy;
 
 
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.Util;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
 
@@ -8,7 +9,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 
-public abstract class AbstractResourceStrategy implements ICollectionStrategy{
+public abstract class AbstractResourceStrategy implements ICollectionStrategy {
 
 
     protected List<Field> bFields;
@@ -78,14 +79,17 @@ public abstract class AbstractResourceStrategy implements ICollectionStrategy{
     }
 
     /**
-     * Set the interger value of the field
-     * @param value
+     * Set the integer value of the field according to its min and max values and the battery level
+     * So far, each value is calculated using a linear expression
+     * @param batteryLevel
      */
-    public void updateIPrecisionFieldValues(int value){
+    public void updateIPrecisionFieldValues(int batteryLevel){
         for(Field field : iFields) {
             try {
+                IPrecision precision = field.getAnnotation(IPrecision.class);
+                double value = precision.method().newInstance().execute(batteryLevel,precision);
                 field.set(field.getClass(), value);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | InstantiationException e) {
                 e.printStackTrace();
             }
         }

@@ -3,9 +3,7 @@ package com.packetsniffer.emenegal.packetsniffer;
 import android.util.Log;
 
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.ICollectionStrategy;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.ResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.database.DBHelper;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
@@ -13,14 +11,11 @@ import com.packetsniffer.emenegal.packetsniffer.transport.tcp.TCPHeader;
 
 import java.io.IOException;
 
-@ResourceStrategy
-public class StrategyManager {
-    public static final String TAG = StrategyManager.class.getSimpleName();
+public class StorageManager{
 
-    public static final StrategyManager INSTANCE = new StrategyManager();
+    public static final String TAG = StorageManager.class.getSimpleName();
 
-    private ICollectionStrategy strategy;
-
+    public static final StorageManager INSTANCE = new StorageManager();
 
     @BPrecision
     public static boolean storePacketInFile;
@@ -39,15 +34,7 @@ public class StrategyManager {
     @BPrecision(false)
     public static boolean storeHTTPS;
 
-    private StrategyManager(){}
-
-    public void setStrategy(ICollectionStrategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public ICollectionStrategy getStrategy() {
-        return strategy;
-    }
+    private StorageManager(){}
 
 
     /**
