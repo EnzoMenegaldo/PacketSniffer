@@ -11,7 +11,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface BPrecision{
-    boolean value() default false;
+    //The associated boolean field will take this value when the app gets enough resources according to its priority
+    boolean value() default true;
     int priority() default 1;
 }
 

@@ -23,7 +23,7 @@ public class UtilTest {
     public boolean nonStaticBoolean;
 
     @IPrecision(lower = 10,higher = 100)
-    public static int aInterval;
+    public static double aInterval;
 
 
     @Test
@@ -47,6 +47,6 @@ public class UtilTest {
     public void initIPrecisionFieldValues() {
         List<Field> iAnnotations = Util.getAnnotatedFields(this.getClass(),IPrecision.class);
         Util.initFieldValues(iAnnotations,IPrecision.class);
-        assertEquals(aInterval,10);
+        assertEquals(aInterval,10,0);
     }
 }

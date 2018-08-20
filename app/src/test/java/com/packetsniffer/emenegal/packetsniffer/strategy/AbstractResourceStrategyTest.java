@@ -1,6 +1,7 @@
 package com.packetsniffer.emenegal.packetsniffer.strategy;
 
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.method.LogarithmMethod;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.AbstractResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.Util;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
@@ -20,7 +21,7 @@ public class AbstractResourceStrategyTest {
     @BPrecision(value = true, priority = 5)
     public static boolean bool1;
 
-    @BPrecision(value = true,priority = 2)
+    @BPrecision(value = true,priority = 3)
     public static boolean bool2;
 
     @BPrecision(value = false,priority = 2)
@@ -31,6 +32,10 @@ public class AbstractResourceStrategyTest {
 
     @IPrecision(lower = 350 ,higher = 4000,method = LinearMethod.class)
     public static double int2;
+
+    @IPrecision(lower = 10 ,higher = 70 ,method = LogarithmMethod.class)
+    public static double int3;
+
 
     private AbstractResourceStrategy strategy;
 
@@ -52,33 +57,48 @@ public class AbstractResourceStrategyTest {
 
     @Test
     public void updateBPrecisionFieldValues() {
-        strategy.updateBPrecisionFieldValues(false);
-        assertFalse(bool1);
-        assertFalse(bool2);
+        strategy.updateBPrecisionFieldValues();
+        assertTrue(bool1);
+        assertTrue(bool2);
         assertFalse(bool3);
     }
 
     @Test
     public void updateBPrecisionFieldValuesAccordingToPriority() {
-        strategy.updateBPrecisionFieldValues(5,false);
+        strategy.updateBPrecisionFieldValues(5);
         assertFalse(bool1);
         assertTrue(bool2);
+        assertFalse(bool3);
+        strategy.updateBPrecisionFieldValues(1);
+        assertFalse(bool1);
+        assertFalse(bool2);
         assertTrue(bool3);
-        strategy.updateBPrecisionFieldValues(1,false);
+        strategy.updateBPrecisionFieldValues(3);
         assertFalse(bool1);
         assertFalse(bool2);
         assertFalse(bool3);
-        strategy.updateBPrecisionFieldValues(1,true);
-        assertTrue(bool1);
-        assertTrue(bool2);
-        assertTrue(bool3);
     }
 
 
     @Test
-    public void updateIPrecisionFieldValues() {
+    public void updateIPrecisionLinearMethod() {
+        strategy.updateIPrecisionFieldValues(50);
+        assertEquals(int2,2175,0);
+    }
+
+    @Test
+    public void updateIPrecisionExponentialMethod() {
         strategy.updateIPrecisionFieldValues(50);
         assertEquals(int1,2500,0);
-        assertEquals(int2,2175,0);
+    }
+
+    @Test
+    public void updateIPrecisionLogarithmMethod() {
+        strategy.updateIPrecisionFieldValues(1);
+        assertEquals(int3,10,0);
+        strategy.updateIPrecisionFieldValues(0);
+        assertEquals(int3,0,0);
+        strategy.updateIPrecisionFieldValues(50);
+        assertEquals(int3,13.91,0.01);
     }
 }

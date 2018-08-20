@@ -45,19 +45,18 @@ public abstract class AbstractResourceStrategy implements ICollectionStrategy {
     }
 
     /**
-     * Set the annotation associated boolean value to 'value' for all bFields with a priority higher or equals of the parameter priority
-     * and set the annotation associated boolean value to !value for all the others.
+     * For all bFields with a priority higher or equals of the parameter priority, set their value to the contrary of the value used when we get enough resources.
+     * For the others, set the value to the one used when the app get enough resources
      * @param priority
-     * @param value
      */
-    public void updateBPrecisionFieldValues(int priority, boolean value){
+    public void updateBPrecisionFieldValues(int priority){
         for(Field field : bFields) {
             BPrecision precision = field.getAnnotation(BPrecision.class);
             try {
                 if (precision.priority() >= priority)
-                    field.setBoolean(field.getClass(), value);
+                    field.setBoolean(field.getClass(), !precision.value());
                 else
-                    field.setBoolean(field.getClass(), !value);
+                    field.setBoolean(field.getClass(), precision.value());
             } catch(IllegalAccessException e){
                 e.printStackTrace();
             }
@@ -65,13 +64,13 @@ public abstract class AbstractResourceStrategy implements ICollectionStrategy {
     }
 
     /**
-     * Set the boolean value of the field
-     * @param value
+     * Set the boolean to the value of initialisation at full resources
      */
-    public void updateBPrecisionFieldValues(boolean value){
+    public void updateBPrecisionFieldValues(){
         for(Field field : bFields) {
             try {
-                field.setBoolean(field.getClass(), value);
+                BPrecision precision = field.getAnnotation(BPrecision.class);
+                field.setBoolean(field.getClass(), precision.value());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }

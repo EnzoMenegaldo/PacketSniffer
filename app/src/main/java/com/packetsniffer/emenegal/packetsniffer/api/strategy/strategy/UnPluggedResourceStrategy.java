@@ -17,17 +17,17 @@ public class UnPluggedResourceStrategy extends AbstractResourceStrategy {
      */
     public void updateStrategy(int batteryLevel){
         if(batteryLevel > 80 )
-            updateBPrecisionFieldValues(true);
+            updateBPrecisionFieldValues();
         else if(batteryLevel < 25)
-            this.updateBPrecisionFieldValues(1,false);
+            this.updateBPrecisionFieldValues(1);
         else if(batteryLevel < 40)
-            this.updateBPrecisionFieldValues(2,false);
+            this.updateBPrecisionFieldValues(2);
         else if(batteryLevel < 50)
-            this.updateBPrecisionFieldValues(3,false);
+            this.updateBPrecisionFieldValues(3);
         else if(batteryLevel < 60)
-            this.updateBPrecisionFieldValues(4,false);
+            this.updateBPrecisionFieldValues(4);
         else if(batteryLevel < 70)
-            this.updateBPrecisionFieldValues(5,false);
+            this.updateBPrecisionFieldValues(5);
 
         updateIPrecisionFieldValues(batteryLevel);
     }
