@@ -1,8 +1,10 @@
 package com.packetsniffer.emenegal.packetsniffer.api.strategy;
 
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.EPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.ResourceStrategy;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.enumeration.IEnum;
 
 import org.atteo.classindex.ClassIndex;
 
@@ -44,21 +46,19 @@ public class Util {
         return fields;
     }
 
-
     /**
      * Update the boolean value of the field according to the value of the associated annotation.
-     * @param fields
      */
-    public static void initFieldValues(List<Field> fields, Class<? extends Annotation> annotation ){
-        if(annotation.equals(BPrecision.class)){
-            for(Field field : fields) {
+    public static void initFieldValues(List<Field> fields, Class<? extends Annotation> klass) throws ClassNotFoundException {
+        if(klass.equals(BPrecision.class)) {
+            for (Field field : fields) {
                 try {
                     field.setBoolean(field.getClass(), field.getAnnotation(BPrecision.class).value());
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
-        }else{
+        }else if(klass.equals(IPrecision.class)){
             for(Field field : fields) {
                 try {
                     field.setDouble(field.getClass(), field.getAnnotation(IPrecision.class).lower());
@@ -66,8 +66,16 @@ public class Util {
                     e.printStackTrace();
                 }
             }
-        }
-
+        }else if(klass.equals(EPrecision.class)){
+            for(Field field : fields) {
+                try {
+                    field.set(field.getClass(), IEnum.getLowerValue(field.getAnnotation(EPrecision.class).klass()));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else
+            throw new ClassNotFoundException();
     }
 
 }

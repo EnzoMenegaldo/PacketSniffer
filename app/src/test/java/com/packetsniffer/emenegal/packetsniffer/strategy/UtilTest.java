@@ -39,14 +39,22 @@ public class UtilTest {
     public void initBPrecisionFieldValues() {
         List<Field> bAnnotations = Util.getAnnotatedFields(this.getClass(),BPrecision.class);
         assertFalse(aBoolean);
-        Util.initFieldValues(bAnnotations,BPrecision.class);
+        try {
+            Util.initFieldValues(bAnnotations,BPrecision.class);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         assertTrue(aBoolean);
     }
 
     @Test
     public void initIPrecisionFieldValues() {
         List<Field> iAnnotations = Util.getAnnotatedFields(this.getClass(),IPrecision.class);
-        Util.initFieldValues(iAnnotations,IPrecision.class);
+        try {
+            Util.initFieldValues(iAnnotations,IPrecision.class);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         assertEquals(aInterval,10,0);
     }
 }

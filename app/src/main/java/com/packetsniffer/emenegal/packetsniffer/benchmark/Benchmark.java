@@ -31,18 +31,12 @@ public class Benchmark extends AsyncTask<String, Integer , Void> {
 
     @Override
     protected Void doInBackground(String... params) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(context, PacketSnifferService.class);
-                context.startService(intent);
-            }
-        });
+
         PhoneResourcesUtil.INSTANCE.startCpuMonitoring();
         BatteryUsageReceiver batteryUsageReceiver = BatteryUsageReceiver.INSTANCE;
         context.registerReceiver(batteryUsageReceiver,batteryUsageReceiver.getIntentFilter());
         publishProgress(0);
-        for(int i = 0 ; i < 75; i++) {
+        for(int i = 0 ; i < 100; i++) {
             for (String url : urls) {
                 sendRequest(new StringRequest(Request.Method.GET, url,null, null));
                 try {
@@ -54,16 +48,22 @@ public class Benchmark extends AsyncTask<String, Integer , Void> {
             System.out.println(i);
         }
 
-
         handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(context, PacketSnifferService.class);
+                context.startService(intent);
+            }
+        });
+     /*   handler.post(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
-        });
+        });*/
 
-        for(int i = 0 ; i < 50; i++) {
+        for(int i = 0 ; i < 100; i++) {
             for (String url : urls) {
                 sendRequest(new StringRequest(Request.Method.GET, url,null, null));
                 try {

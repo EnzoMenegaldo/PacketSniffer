@@ -1,12 +1,16 @@
 package com.packetsniffer.emenegal.packetsniffer.strategy;
 
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.enumeration.IEnum;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.enumeration.PrecisionEnum;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.EPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.method.LogarithmMethod;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.AbstractResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.Util;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.method.ExponentialMethod;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.method.LinearMethod;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.enumeration.DefaultEnum;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +40,12 @@ public class AbstractResourceStrategyTest {
     @IPrecision(lower = 10 ,higher = 70 ,method = LogarithmMethod.class)
     public static double int3;
 
+    @EPrecision(klass = PrecisionEnum.class)
+    public static IEnum precisionEnum;
+
+    @EPrecision(klass = DefaultEnum.class)
+    public static IEnum defaultEnum;
+
 
     private AbstractResourceStrategy strategy;
 
@@ -49,10 +59,19 @@ public class AbstractResourceStrategyTest {
         };
         List<Field> bAnnotations = Util.getAnnotatedFields(this.getClass(),BPrecision.class);
         List<Field> iAnnotations = Util.getAnnotatedFields(this.getClass(),IPrecision.class);
-        Util.initFieldValues(bAnnotations,BPrecision.class);
-        Util.initFieldValues(iAnnotations,IPrecision.class);
+        List<Field> eAnnotations = Util.getAnnotatedFields(this.getClass(),EPrecision.class);
+
+        try {
+            Util.initFieldValues(bAnnotations,BPrecision.class);
+            Util.initFieldValues(iAnnotations,IPrecision.class);
+            Util.initFieldValues(eAnnotations,EPrecision.class);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
         strategy.setbFields(bAnnotations);
         strategy.setiFields(iAnnotations);
+        strategy.seteFields(eAnnotations);
     }
 
     @Test
@@ -100,5 +119,31 @@ public class AbstractResourceStrategyTest {
         assertEquals(int3,0,0);
         strategy.updateIPrecisionFieldValues(50);
         assertEquals(int3,13.91,0.01);
+    }
+
+    @Test
+    public void updatePrecisionEnum() {
+        assertEquals(precisionEnum,PrecisionEnum.SaveEnergy);
+        strategy.updateEPrecisionFieldValues(90);
+        assertEquals(precisionEnum,PrecisionEnum.FullPower);
+        strategy.updateEPrecisionFieldValues(80);
+        assertEquals(precisionEnum,PrecisionEnum.HighPower);
+        strategy.updateEPrecisionFieldValues(65);
+        assertEquals(precisionEnum,PrecisionEnum.HalfPower);
+        strategy.updateEPrecisionFieldValues(25);
+        assertEquals(precisionEnum,PrecisionEnum.FewPower);
+        strategy.updateEPrecisionFieldValues(1);
+        assertEquals(precisionEnum,PrecisionEnum.SaveEnergy);
+    }
+
+    @Test
+    public void updateDefaultEnum(){
+        assertEquals(defaultEnum,DefaultEnum.Small);
+        strategy.updateEPrecisionFieldValues(90);
+        assertEquals(defaultEnum,DefaultEnum.Large);
+        strategy.updateEPrecisionFieldValues(50);
+        assertEquals(defaultEnum,DefaultEnum.Medium);
+        strategy.updateEPrecisionFieldValues(1);
+        assertEquals(defaultEnum,DefaultEnum.Small);
     }
 }

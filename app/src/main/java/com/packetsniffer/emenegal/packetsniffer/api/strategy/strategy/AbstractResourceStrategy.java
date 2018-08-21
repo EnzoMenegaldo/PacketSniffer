@@ -3,8 +3,11 @@ package com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy;
 
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.Util;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.EPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.enumeration.IEnum;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -18,11 +21,22 @@ public abstract class AbstractResourceStrategy implements ICollectionStrategy {
     protected List<Field> iFields;
 
 
+    protected List<Field> eFields;
+
+
 
     public AbstractResourceStrategy() {
         bFields = Util.getAnnotatedFields(BPrecision.class);
         iFields = Util.getAnnotatedFields(IPrecision.class);
-        Util.initFieldValues(bFields,BPrecision.class);
+        eFields = Util.getAnnotatedFields(EPrecision.class);
+
+        try {
+            Util.initFieldValues(bFields,BPrecision.class);
+            Util.initFieldValues(iFields,IPrecision.class);
+            Util.initFieldValues(eFields,EPrecision.class);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public abstract void updateStrategy(int batteryLevel);
@@ -42,6 +56,14 @@ public abstract class AbstractResourceStrategy implements ICollectionStrategy {
 
     public void setiFields(List<Field> iFields) {
         this.iFields = iFields;
+    }
+
+    public List<Field> geteFields() {
+        return eFields;
+    }
+
+    public void seteFields(List<Field> eFields) {
+        this.eFields = eFields;
     }
 
     /**
@@ -93,4 +115,21 @@ public abstract class AbstractResourceStrategy implements ICollectionStrategy {
             }
         }
     }
+
+    /**
+     * Set the field value to the appropriate enum according to the current battery level
+     * @param batteryLevel
+     */
+    public void updateEPrecisionFieldValues(int batteryLevel){
+        for(Field field : eFields) {
+            try {
+                EPrecision precision = field.getAnnotation(EPrecision.class);
+                field.set(field.getClass(), IEnum.getIEnum(batteryLevel,precision.klass()));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }
