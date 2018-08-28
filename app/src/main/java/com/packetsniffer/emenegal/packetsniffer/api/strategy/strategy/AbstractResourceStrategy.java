@@ -7,7 +7,6 @@ import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.EPrecisi
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.enumeration.IEnum;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -67,15 +66,15 @@ public abstract class AbstractResourceStrategy implements ICollectionStrategy {
     }
 
     /**
-     * For all bFields with a priority higher or equals of the parameter priority, set their value to the contrary of the value used when we get enough resources.
+     * For all bFields with a threshold higher or equals of the parameter threshold, set their value to the contrary of the value used when we get enough resources.
      * For the others, set the value to the one used when the app get enough resources
-     * @param priority
+     * @param batteryLevel
      */
-    public void updateBPrecisionFieldValues(int priority){
+    public void updateBPrecisionFieldValues(int batteryLevel){
         for(Field field : bFields) {
             BPrecision precision = field.getAnnotation(BPrecision.class);
             try {
-                if (precision.priority() >= priority)
+                if (precision.threshold() >= batteryLevel)
                     field.setBoolean(field.getClass(), !precision.value());
                 else
                     field.setBoolean(field.getClass(), precision.value());

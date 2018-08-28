@@ -22,13 +22,13 @@ import static org.junit.Assert.*;
 
 public class AbstractResourceStrategyTest {
 
-    @BPrecision(value = true, priority = 5)
+    @BPrecision(value = true, threshold = 50)
     public static boolean bool1;
 
-    @BPrecision(value = true,priority = 3)
+    @BPrecision(value = true, threshold = 75)
     public static boolean bool2;
 
-    @BPrecision(value = false,priority = 2)
+    @BPrecision(value = false, threshold = 25)
     public static boolean bool3;
 
     @IPrecision(lower = 150 ,higher = 400, method = ExponentialMethod.class, params = {2})
@@ -83,19 +83,19 @@ public class AbstractResourceStrategyTest {
     }
 
     @Test
-    public void updateBPrecisionFieldValuesAccordingToPriority() {
-        strategy.updateBPrecisionFieldValues(5);
-        assertFalse(bool1);
+    public void updateBPrecisionFieldValuesAccordingToBatteryLevel() {
+        strategy.updateBPrecisionFieldValues(90);
+        assertTrue(bool1);
         assertTrue(bool2);
         assertFalse(bool3);
-        strategy.updateBPrecisionFieldValues(1);
+        strategy.updateBPrecisionFieldValues(70);
+        assertTrue(bool1);
+        assertFalse(bool2);
+        assertFalse(bool3);
+        strategy.updateBPrecisionFieldValues(10);
         assertFalse(bool1);
         assertFalse(bool2);
         assertTrue(bool3);
-        strategy.updateBPrecisionFieldValues(3);
-        assertFalse(bool1);
-        assertFalse(bool2);
-        assertFalse(bool3);
     }
 
 

@@ -82,7 +82,7 @@ public final class LinuxUtils {
          * The amount of time, measured in units of USER_HZ (1/100ths of a
          * second on most architectures, use sysconf(_SC_CLK_TCK) to obtain the
          * right value), that the system spent in user mode, user mode with low
-         * priority (nice), system mode, and the idle task, respectively. The
+         * threshold (nice), system mode, and the idle task, respectively. The
          * last value should be USER_HZ times the second entry in the uptime
          * pseudo-file.
          *
