@@ -11,6 +11,7 @@ import com.packetsniffer.emenegal.packetsniffer.util.PacketUtil;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectableChannel;
@@ -183,22 +184,24 @@ public class SocketNIODataService implements Runnable {
 				session.getDestPort(), session.getSourceIp(),
 				session.getSourcePort());
 		//tcp has PSH flag when data is ready for sending, UDP does not have this
-		if(selectionKey.isValid() && selectionKey.isWritable()
-				&& !session.isBusywrite() && session.hasDataToSend()
-				&& session.isDataForSendingReady())
-		{
-			session.setBusywrite(true);
-			final SocketDataWriterWorker worker =
-					new SocketDataWriterWorker(writer, sessionKey);
-			workerPool.execute(worker);
-		}
-		if(selectionKey.isValid() && selectionKey.isReadable()
-				&& !session.isBusyRead())
-		{
-			session.setBusyread(true);
-			final SocketDataReaderWorker worker =
-					new SocketDataReaderWorker(writer, sessionKey);
-			workerPool.execute(worker);
+		try {
+			if (selectionKey.isValid() && selectionKey.isWritable()
+					&& !session.isBusywrite() && session.hasDataToSend()
+					&& session.isDataForSendingReady()) {
+				session.setBusywrite(true);
+				final SocketDataWriterWorker worker =
+						new SocketDataWriterWorker(writer, sessionKey);
+				workerPool.execute(worker);
+			}
+			if (selectionKey.isValid() && selectionKey.isReadable()
+					&& !session.isBusyRead()) {
+				session.setBusyread(true);
+				final SocketDataReaderWorker worker =
+						new SocketDataReaderWorker(writer, sessionKey);
+				workerPool.execute(worker);
+			}
+		}catch (CancelledKeyException e){
+
 		}
 	}
 }

@@ -44,7 +44,7 @@ public class Benchmark extends AsyncTask<String, Integer , Void> {
         context.registerReceiver(batteryUsageReceiver,batteryUsageReceiver.getIntentFilter());
         publishProgress(0);
         int k = 0 ;
-        for(int i = 0 ; i < 100; i++) {
+        for(int i = 0 ; i < 300; i++) {
             for (String url : urls) {
                 sendRequest(new StringRequest(Request.Method.GET, url,null, null));
                 k++;
