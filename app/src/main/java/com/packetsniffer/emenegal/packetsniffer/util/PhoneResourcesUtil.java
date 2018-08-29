@@ -2,6 +2,9 @@ package com.packetsniffer.emenegal.packetsniffer.util;
 
 
 import android.app.ActivityManager;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.util.Log;
 
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
@@ -19,8 +22,8 @@ import static android.content.Context.ACTIVITY_SERVICE;
 public class PhoneResourcesUtil {
 
     public static final PhoneResourcesUtil INSTANCE = new PhoneResourcesUtil();
-    private static final String cpu_fileName = "cpu_log";
-    private static final String memory_fileName = "memory_log";
+    private static final String fileName = "battery_log";
+
     private boolean monitoring = true;
     private final long startingTime = new Date().getTime();
 
@@ -28,13 +31,12 @@ public class PhoneResourcesUtil {
     public static BufferedWriter bw;
 
     private PhoneResourcesUtil(){
-        File mem_file = new File(MainActivity.getContext().getExternalFilesDir(null) + File.separator + memory_fileName + "_" +(new Date()).getTime()+".txt");
         try {
-            if(!mem_file.exists()) {
-                mem_file.createNewFile();
-            }
-            bw = new BufferedWriter(new FileWriter(mem_file,true));
-        }catch (IOException e) {
+            File file = new File(MainActivity.getContext().getExternalFilesDir("")+ File.separator +fileName+"_"+(new Date()).getTime());
+            if(!file.exists())
+                file.createNewFile();
+            bw = new BufferedWriter(new FileWriter(file,true));
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -70,46 +72,23 @@ public class PhoneResourcesUtil {
         return mi.lowMemory;
     }
 
-    public String executeTop() {
-        java.lang.Process p = null;
-        BufferedReader in = null;
-        String returnString = null;
-        try {
-            p = Runtime.getRuntime().exec("dumpsys cpuinfo");
-            in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            while ((returnString = in.readLine()) != null) {
-                System.out.println(returnString);
-               /* if(returnString.contains("%cpu") && returnString.contains("%user")){
-                    System.out.println(returnString);
-                    break;
-                }*/
-            }
-        } catch (IOException e) {
-            Log.e("executeTop", "error in getting first line of top");
-            e.printStackTrace();
-        } finally {
-            try {
-                in.close();
-                p.destroy();
-            } catch (IOException e) {
-                Log.e("executeTop",
-                        "error in closing and destroying top process");
-                e.printStackTrace();
-            }
-        }
-        return returnString;
-    }
 
-
-    public void startCpuMonitoring(){
+    public void startMonitoring(){
         new Thread(){
             @Override
             public void run(){
+                IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                Intent batteryStatus;
+                int battery_level;
+
                 while (monitoring) {
                     try {
-                        bw.write(((new Date()).getTime()-startingTime)/1000+","+getAvailableMemory()+"\n");
+                        batteryStatus = MainActivity.getContext().registerReceiver(null, ifilter);
+                        battery_level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                        bw.write(((new Date()).getTime()-startingTime)/1000+","+battery_level+"\n");
                         bw.flush();
-                        Thread.sleep(1000);
+
+                        Thread.sleep(60000);
                     } catch (IOException | InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -118,7 +97,7 @@ public class PhoneResourcesUtil {
         }.start();
     }
 
-    public void stopCpuMonitoring(){
+    public void stopMonitoring(){
         try {
             monitoring = false;
             bw.close();

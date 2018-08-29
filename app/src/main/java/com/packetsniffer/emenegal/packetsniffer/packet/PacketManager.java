@@ -9,10 +9,6 @@ public class PacketManager {
     public static final PacketManager INSTANCE = new PacketManager();
     private Queue<Packet> packets;
 
-    private boolean storeHttp;
-    private boolean storeHttps;
-    private boolean storeAll;
-
     private PacketManager(){
         packets = new LinkedList<>();
     }

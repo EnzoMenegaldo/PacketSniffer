@@ -33,7 +33,7 @@ public class SocketDataWriterWorker implements Runnable {
 	public void run() {
 		final Session session = SessionManager.INSTANCE.getSessionByKey(sessionKey);
 		if(session == null) {
-			Log.d(TAG, "No session related to " + sessionKey + "for write");
+			//Log.d(TAG, "No session related to " + sessionKey + "for write");
 			return;
 		}
 
@@ -50,7 +50,7 @@ public class SocketDataWriterWorker implements Runnable {
 		session.setBusywrite(false);
 
 		if(session.isAbortingConnection()){
-			Log.d(TAG,"removing aborted connection -> " + sessionKey);
+			//Log.d(TAG,"removing aborted connection -> " + sessionKey);
 			session.getSelectionKey().cancel();
 
 			if(channel instanceof SocketChannel) {
@@ -89,10 +89,10 @@ public class SocketDataWriterWorker implements Runnable {
 		buffer.flip();
 		try {
 			String str = new String(data);
-			Log.d(TAG,"****** data write to server ********");
-			Log.d(TAG,str);
-			Log.d(TAG,"***** end writing to server *******");
-			Log.d(TAG,"writing data to remote UDP: "+name);
+			//Log.d(TAG,"****** data write to server ********");
+			//Log.d(TAG,str);
+			//Log.d(TAG,"***** end writing to server *******");
+			//Log.d(TAG,"writing data to remote UDP: "+name);
 			channel.write(buffer);
 			Date dt = new Date();
 			session.connectionStartTime = dt.getTime();
@@ -118,7 +118,7 @@ public class SocketDataWriterWorker implements Runnable {
 		buffer.flip();
 		
 		try {
-			Log.d(TAG,"writing TCP data to: " + name);
+			//Log.d(TAG,"writing TCP data to: " + name);
 			channel.write(buffer);
 			//Log.d(TAG,"finished writing data to: "+name);
 		} catch (NotYetConnectedException ex) {

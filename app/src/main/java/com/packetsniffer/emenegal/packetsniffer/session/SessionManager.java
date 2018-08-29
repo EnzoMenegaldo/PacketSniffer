@@ -161,7 +161,7 @@ public enum SessionManager {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			Log.d(TAG,"closed session -> " + key);
+			//Log.d(TAG,"closed session -> " + key);
 		}
 	}
 
@@ -179,7 +179,7 @@ public enum SessionManager {
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
 		}
-		Log.d(TAG,"closed session -> " + key);
+		//Log.d(TAG,"closed session -> " + key);
 	}
 
 	@Nullable
@@ -208,8 +208,7 @@ public enum SessionManager {
 		String ips = PacketUtil.intToIPAddress(ip);
 		String sourceIpAddress = PacketUtil.intToIPAddress(srcIp);
 		SocketAddress socketAddress = new InetSocketAddress(ips, port);
-		Log.d(TAG,"initialized connection to remote UDP server: " + ips + ":" +
-				port + " from " + sourceIpAddress + ":" + srcPort);
+		//Log.d(TAG,"initialized connection to remote UDP server: " + ips + ":" + port + " from " + sourceIpAddress + ":" + srcPort);
 
 		try {
 			channel.connect(socketAddress);
@@ -231,7 +230,7 @@ public enum SessionManager {
 								SelectionKey.OP_WRITE);
 					}
 					session.setSelectionKey(selectionKey);
-					Log.d(TAG,"Registered udp selector successfully");
+					//Log.d(TAG,"Registered udp selector successfully");
 				}
 			}
 		} catch (ClosedChannelException e) {
@@ -252,7 +251,7 @@ public enum SessionManager {
 		} else {
 			table.put(keys, session);
 		}
-		Log.d(TAG,"new UDP session successfully created.");
+		//Log.d(TAG,"new UDP session successfully created.");
 		return session;
 	}
 
@@ -260,7 +259,7 @@ public enum SessionManager {
 	public Session createNewSession(int ip, int port, int srcIp, int srcPort){
 		String key = createKey(ip, port, srcIp, srcPort);
 		if (table.containsKey(key)) {
-			Log.e(TAG, "Session was already created.");
+			//Log.e(TAG, "Session was already created.");
 			return null;
 		}
 
@@ -282,15 +281,15 @@ public enum SessionManager {
 			return null;
 		}
 		String ips = PacketUtil.intToIPAddress(ip);
-		Log.d(TAG,"created new SocketChannel for " + key);
+		//Log.d(TAG,"created new SocketChannel for " + key);
 
 		protector.protect(channel.socket());
 
-		Log.d(TAG,"Protected new SocketChannel");
+		//Log.d(TAG,"Protected new SocketChannel");
 
 		//initiate connection to reduce latency
 		SocketAddress socketAddress = new InetSocketAddress(ips, port);
-		Log.d(TAG,"initiate connecting to remote tcp server: " + ips + ":" + port);
+		//Log.d(TAG,"initiate connecting to remote tcp server: " + ips + ":" + port);
 		boolean connected;
 		try{
 			connected = channel.connect(socketAddress);
@@ -310,7 +309,7 @@ public enum SessionManager {
 							SelectionKey.OP_CONNECT | SelectionKey.OP_READ |
 									SelectionKey.OP_WRITE);
 					session.setSelectionKey(selectionKey);
-					Log.d(TAG,"Registered tcp selector successfully");
+					//Log.d(TAG,"Registered tcp selector successfully");
 				}
 			}
 		} catch (ClosedChannelException e) {

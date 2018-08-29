@@ -91,7 +91,7 @@ public class SessionHandler {
 		session.setLastUdpHeader(udpheader);
 		int len = SessionManager.INSTANCE.addClientData(clientPacketData, session);
 		session.setDataForSendingReady(true);
-		Log.d(TAG,"added UDP data for bg worker to send: "+len);
+		//Log.d(TAG,"added UDP data for bg worker to send: "+len);
 		SessionManager.INSTANCE.keepSessionAlive(session);
 	}
 
@@ -127,7 +127,7 @@ public class SessionHandler {
 					sendRstPacket(ipHeader, tcpheader, dataLength);
 				}
 				else {
-					Log.e(TAG,"**** ==> Session not found: " + key);
+					//Log.e(TAG,"**** ==> Session not found: " + key);
 				}
 				return;
 			}
@@ -154,7 +154,7 @@ public class SessionHandler {
 				}else if(session.isAckedToFin() && !tcpheader.isFIN()){
 					//the last ACK from client after FIN-ACK flag was sent
 					SessionManager.INSTANCE.closeSession(destinationIP, destinationPort, sourceIP, sourcePort);
-					Log.d(TAG,"got last ACK after FIN, session is now closed.");
+					//Log.d(TAG,"got last ACK after FIN, session is now closed.");
 				}
 			}
 			//received the last segment of data from vpn client
@@ -165,7 +165,7 @@ public class SessionHandler {
 			} else if(tcpheader.isFIN()){
 				//fin from vpn client is the last packet
 				//ack it
-				Log.d(TAG,"FIN from vpn client, will ack it.");
+				//Log.d(TAG,"FIN from vpn client, will ack it.");
 				ackFinAck(ipHeader, tcpheader, session);
 			} else if(tcpheader.isRST()){
 				resetConnection(ipHeader, tcpheader);
@@ -185,11 +185,11 @@ public class SessionHandler {
 		} else if(tcpheader.isRST()){
 			resetConnection(ipHeader, tcpheader);
 		} else {
-			Log.d(TAG,"unknown TCP flag");
+			//Log.d(TAG,"unknown TCP flag");
 			String str1 = PacketUtil.getOutput(ipHeader, tcpheader, clientPacketData.array());
-			Log.d(TAG,">>>>>>>> Received from client <<<<<<<<<<");
-			Log.d(TAG,str1);
-			Log.d(TAG,">>>>>>>>>>>>>>>>>>>end receiving from client>>>>>>>>>>>>>>>>>>>>>");
+			//Log.d(TAG,">>>>>>>> Received from client <<<<<<<<<<");
+			//Log.d(TAG,str1);
+			//Log.d(TAG,">>>>>>>>>>>>>>>>>>>end receiving from client>>>>>>>>>>>>>>>>>>>>>");
 		}
 	}
 
@@ -211,7 +211,7 @@ public class SessionHandler {
 		} else if(ipHeader.getProtocol() == 17) {
 			transportHeader = UDPPacketFactory.createUDPHeader(stream);
 		} else {
-			Log.e(TAG, "******===> Unsupported protocol: " + ipHeader.getProtocol());
+			//Log.e(TAG, "******===> Unsupported protocol: " + ipHeader.getProtocol());
 			return;
 		}
 
@@ -229,9 +229,9 @@ public class SessionHandler {
 			writer.write(data);
 			packetData.addData(data);
 
-			Log.d(TAG,"Sent RST Packet to client with dest => " +
+			/*Log.d(TAG,"Sent RST Packet to client with dest => " +
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
-					tcp.getDestinationPort());
+					tcp.getDestinationPort());*/
 		} catch (IOException e) {
 			Log.e(TAG,"failed to send RST packet: " + e.getMessage());
 		}
@@ -242,9 +242,9 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
-			Log.d(TAG,"Sent last ACK Packet to client with dest => " +
+			/*Log.d(TAG,"Sent last ACK Packet to client with dest => " +
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
-					tcp.getDestinationPort());
+					tcp.getDestinationPort());*/
 		} catch (IOException e) {
 			Log.e(TAG,"failed to send last ACK packet: " + e.getMessage());
 		}
@@ -261,8 +261,8 @@ public class SessionHandler {
 			if(session != null){
 				session.getSelectionKey().cancel();
 				SessionManager.INSTANCE.closeSession(session);
-				Log.d(TAG,"ACK to client's FIN and close session => "+PacketUtil.intToIPAddress(ip.getDestinationIP())+":"+tcp.getDestinationPort()
-						+"-"+PacketUtil.intToIPAddress(ip.getSourceIP())+":"+tcp.getSourcePort());
+				/*Log.d(TAG,"ACK to client's FIN and close session => "+PacketUtil.intToIPAddress(ip.getDestinationIP())+":"+tcp.getDestinationPort()
+						+"-"+PacketUtil.intToIPAddress(ip.getSourceIP())+":"+tcp.getSourcePort());*/
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -276,7 +276,7 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
-			Log.d(TAG,"00000000000 FIN-ACK packet data to vpn client 000000000000");
+			//Log.d(TAG,"00000000000 FIN-ACK packet data to vpn client 000000000000");
 			IPv4Header vpnip = null;
 			try {
 				vpnip = IPPacketFactory.createIPv4Header(stream);
@@ -296,7 +296,7 @@ public class SessionHandler {
 				String sout = PacketUtil.getOutput(vpnip, vpntcp, data);
 				Log.d(TAG,sout);
 			}
-			Log.d(TAG,"0000000000000 finished sending FIN-ACK packet to vpn client 000000000000");
+			//Log.d(TAG,"0000000000000 finished sending FIN-ACK packet to vpn client 000000000000");
 
 		} catch (IOException e) {
 			Log.e(TAG,"Failed to send ACK packet: "+e.getMessage());
@@ -311,8 +311,8 @@ public class SessionHandler {
 		session.setTimestampReplyto(tcp.getTimeStampSender());
 		session.setTimestampSender((int)System.currentTimeMillis());
 
-		Log.d(TAG,"set data ready for sending to dest, bg will do it. data size: "
-                + session.getSendingDataSize());
+		/*Log.d(TAG,"set data ready for sending to dest, bg will do it. data size: "
+                + session.getSendingDataSize());*/
 	}
 	
 	/**
@@ -324,7 +324,7 @@ public class SessionHandler {
 	 */
 	private void sendAck(IPv4Header ipheader, TCPHeader tcpheader, int acceptedDataLength, Session session){
 		long acknumber = session.getRecSequence() + acceptedDataLength;
-		Log.d(TAG,"sent ack, ack# "+session.getRecSequence()+" + "+acceptedDataLength+" = "+acknumber);
+		//Log.d(TAG,"sent ack, ack# "+session.getRecSequence()+" + "+acceptedDataLength+" = "+acknumber);
 		session.setRecSequence(acknumber);
 		byte[] data = TCPPacketFactory.createResponseAckData(ipheader, tcpheader, acknumber);
 		try {
@@ -337,8 +337,7 @@ public class SessionHandler {
 
 	private void sendAckForDisorder(IPv4Header ipHeader, TCPHeader tcpheader, int acceptedDataLength) {
 		long ackNumber = tcpheader.getSequenceNumber() + acceptedDataLength;
-		Log.d(TAG,"sent ack, ack# " + tcpheader.getSequenceNumber() +
-				" + " + acceptedDataLength + " = " + ackNumber);
+		//Log.d(TAG,"sent ack, ack# " + tcpheader.getSequenceNumber() +" + " + acceptedDataLength + " = " + ackNumber);
 		byte[] data = TCPPacketFactory.createResponseAckData(ipHeader, tcpheader, ackNumber);
 		try {
 			writer.write(data);
@@ -372,8 +371,8 @@ public class SessionHandler {
 			session.setTimestampReplyto(tcpHeader.getTimeStampSender());
 			session.setTimestampSender((int) System.currentTimeMillis());
 		} else {
-			Log.d(TAG,"Not Accepting ack# "+tcpHeader.getAckNumber() +" , it should be: "+session.getSendNext());
-			Log.d(TAG,"Prev sendUnack: "+session.getSendUnack());
+			//Log.d(TAG,"Not Accepting ack# "+tcpHeader.getAckNumber() +" , it should be: "+session.getSendNext());
+			//Log.d(TAG,"Prev sendUnack: "+session.getSendUnack());
 			session.setAcked(false);
 		}
 	}
@@ -409,7 +408,7 @@ public class SessionHandler {
 		int windowScaleFactor = (int) Math.pow(2, tcpheader.getWindowScale());
 		//Log.d(TAG,"window scale: Math.power(2,"+tcpheader.getWindowScale()+") is "+windowScaleFactor);
 		session.setSendWindowSizeAndScale(tcpheader.getWindowSize(), windowScaleFactor);
-		Log.d(TAG,"send-window size: " + session.getSendWindow());
+		//Log.d(TAG,"send-window size: " + session.getSendWindow());
 		session.setMaxSegmentSize(tcpheader.getMaxSegmentSize());
 		session.setSendUnack(tcpheader.getSequenceNumber());
 		session.setSendNext(tcpheader.getSequenceNumber() + 1);
@@ -422,7 +421,7 @@ public class SessionHandler {
 		try {
 			writer.write(packet.getBuffer());
 			packetData.addData(packet.getBuffer());
-			Log.d(TAG,"Send SYN-ACK to client");
+			//Log.d(TAG,"Send SYN-ACK to client");
 		} catch (IOException e) {
 			Log.e(TAG,"Error sending data to client: "+e.getMessage());
 		}

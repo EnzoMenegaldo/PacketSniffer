@@ -68,7 +68,7 @@ public class Packet {
 
 	private boolean isHttps;
 
-	private boolean outgoing;
+	private boolean inComing;
 
 	public Packet(@NonNull IPv4Header ipHeader, @NonNull ITransportHeader transportHeader, @NonNull byte[] data) {
 		this.ipHeader = ipHeader;
@@ -163,12 +163,12 @@ public class Packet {
 		isHttps = https;
 	}
 
-	public boolean isOutgoing() {
-		return outgoing;
+	public boolean isInComing() {
+		return inComing;
 	}
 
-	public void setOutgoing(boolean outgoing) {
-		this.outgoing = outgoing;
+	public void setInComing(boolean inComing) {
+		this.inComing = inComing;
 	}
 
 	/**

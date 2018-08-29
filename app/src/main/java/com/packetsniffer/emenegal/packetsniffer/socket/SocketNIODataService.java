@@ -119,7 +119,7 @@ public class SocketNIODataService implements Runnable {
 			int port = session.getDestPort();
 			SocketAddress address = new InetSocketAddress(ips,port);
 			try {
-				Log.d(TAG,"selector: connecting to remote UDP server: "+ips+":"+port);
+				//Log.d(TAG,"selector: connecting to remote UDP server: "+ips+":"+port);
 				channel = channel.connect(address);
 				session.setChannel(channel);
 				session.setConnected(channel.isConnected());
@@ -135,7 +135,7 @@ public class SocketNIODataService implements Runnable {
 
 	private void processTCPSelectionKey(SelectionKey key) throws IOException{
 		if(!key.isValid()){
-			Log.d(TAG,"Invalid SelectionKey for TCP");
+			//Log.d(TAG,"Invalid SelectionKey for TCP");
 			return;
 		}
 		SocketChannel channel = (SocketChannel)key.channel();
@@ -148,7 +148,7 @@ public class SocketNIODataService implements Runnable {
 			String ips = PacketUtil.intToIPAddress(session.getDestIp());
 			int port = session.getDestPort();
 			SocketAddress address = new InetSocketAddress(ips, port);
-			Log.d(TAG,"connecting to remote tcp server: " + ips + ":" + port);
+			//Log.d(TAG,"connecting to remote tcp server: " + ips + ":" + port);
 			boolean connected = false;
 			if(!channel.isConnected() && !channel.isConnectionPending()){
 				try{
@@ -165,12 +165,12 @@ public class SocketNIODataService implements Runnable {
 			
 			if (connected) {
 				session.setConnected(connected);
-				Log.d(TAG,"connected immediately to remote tcp server: "+ips+":"+port);
+				//Log.d(TAG,"connected immediately to remote tcp server: "+ips+":"+port);
 			} else {
 				if(channel.isConnectionPending()){
 					connected = channel.finishConnect();
 					session.setConnected(connected);
-					Log.d(TAG,"connected to remote tcp server: "+ips+":"+port);
+					//Log.d(TAG,"connected to remote tcp server: "+ips+":"+port);
 				}
 			}
 		}

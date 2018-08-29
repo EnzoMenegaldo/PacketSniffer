@@ -8,6 +8,7 @@ import com.packetsniffer.emenegal.packetsniffer.database.DBHelper;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
 import com.packetsniffer.emenegal.packetsniffer.transport.tcp.TCPHeader;
+import com.packetsniffer.emenegal.packetsniffer.transport.udp.UDPHeader;
 
 import java.io.IOException;
 
@@ -17,22 +18,18 @@ public class StorageManager{
 
     public static final StorageManager INSTANCE = new StorageManager();
 
-    @BPrecision
+    @BPrecision(value = true,threshold = 90)
     public static boolean storePacketInFile;
-    @BPrecision(false)
-    public static boolean storePacketInDB;
-    @BPrecision(false)
-    public static boolean storeOutgoing;
-    @BPrecision(false)
+    @BPrecision(value = true,threshold = 60)
     public static boolean storeIncoming;
-    @BPrecision(false)
-    public static boolean storeTCP;
-    @BPrecision(false)
+    @BPrecision(value = true, threshold = 50)
     public static boolean storeUDP;
-    @BPrecision(false)
+    @BPrecision(value = true, threshold = 35)
     public static boolean storeHTTP;
-    @BPrecision(false)
+    @BPrecision(value = true,threshold = 10)
     public static boolean storeHTTPS;
+    @BPrecision(value = true,threshold = 80)
+    public static boolean storePacketInDB;
 
     private StorageManager(){}
 
@@ -44,14 +41,21 @@ public class StorageManager{
     public void storePacket(Packet packet) {
         boolean store = false;
         if(storePacketInDB){
-            if(packet.isHttps() && storeHTTPS)
-                store = true;
-            else if(packet.isHttp() && storeHTTP)
-                store = true;
-            else if(packet.isOutgoing() && storeIncoming)
-                store = true;
-            else if(packet.getTransportHeader() instanceof TCPHeader && storeTCP)
-                store = true;
+            if(packet.isInComing() && !storeIncoming){
+                return;
+            }else{
+                if(packet.getTransportHeader() instanceof UDPHeader) {
+                    if (storeUDP)
+                        store = true;
+                    else
+                        return;
+                }else{
+                    if(packet.isHttps() && storeHTTPS)
+                        store = true;
+                    else if(packet.isHttp() && storeHTTP)
+                        store = true;
+                }
+            }
         }
 
         if(store)

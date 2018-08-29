@@ -24,7 +24,7 @@ public class StrategyManager {
 
     /**
      * Set the strategy according to the current charging state.
-     * Then initialize the broadcast receiver and register it to gather the battery state.
+     * Then register the broadcast receiver to gather the battery state.
      * @param context
      */
     public void initialize(Context context){
@@ -33,7 +33,6 @@ public class StrategyManager {
         else
             strategy = new UnPluggedResourceStrategy();
 
-        BatteryUsageReceiver.INSTANCE.initialize(context);
         context.registerReceiver(BatteryUsageReceiver.INSTANCE,BatteryUsageReceiver.INSTANCE.getIntentFilter());
     }
 
@@ -43,7 +42,6 @@ public class StrategyManager {
      */
     public void stop(Context context){
         context.unregisterReceiver(BatteryUsageReceiver.INSTANCE);
-        BatteryUsageReceiver.INSTANCE.closeLogFile();
     }
 
 }
