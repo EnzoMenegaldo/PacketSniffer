@@ -11,12 +11,9 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.BatteryUsageReceiver;
+import com.emenegal.battery_saving.StrategyManager;
 import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.StrategyManager;
-import com.packetsniffer.emenegal.packetsniffer.util.PhoneResourcesUtil;
-
 public class Benchmark extends AsyncTask<String, Integer , Void> {
 
 
@@ -45,7 +42,7 @@ public class Benchmark extends AsyncTask<String, Integer , Void> {
         //  PhoneResourcesUtil.INSTANCE.startCpuMonitoring();
         publishProgress(0);
         int k = 0 ;
-        for(int i = 0 ; i < 2; i++) {
+        for(int i = 0 ; i < 1200; i++) {
             for (String url : urls) {
                 sendRequest(new StringRequest(Request.Method.GET, url,null, null));
                 k++;

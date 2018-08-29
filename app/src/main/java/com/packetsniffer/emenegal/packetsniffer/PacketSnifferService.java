@@ -32,7 +32,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.StrategyManager;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packet.PacketPublisher;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;

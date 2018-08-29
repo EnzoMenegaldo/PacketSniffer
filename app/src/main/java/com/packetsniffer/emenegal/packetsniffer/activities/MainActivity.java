@@ -12,14 +12,10 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.BatteryUsageReceiver;
 import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.R;
 import com.packetsniffer.emenegal.packetsniffer.benchmark.Benchmark;
 import com.packetsniffer.emenegal.packetsniffer.database.OrmLiteDBHelper;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.StrategyManager;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.UnPluggedResourceStrategy;
-import com.packetsniffer.emenegal.packetsniffer.util.PhoneResourcesUtil;
 import com.packetsniffer.emenegal.packetsniffer.util.PhoneStateUtil;
 
 

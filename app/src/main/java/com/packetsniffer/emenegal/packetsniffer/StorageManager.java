@@ -3,7 +3,7 @@ package com.packetsniffer.emenegal.packetsniffer;
 import android.util.Log;
 
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
+import com.emenegal.battery_saving.annotation.BPrecision;
 import com.packetsniffer.emenegal.packetsniffer.database.DBHelper;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
