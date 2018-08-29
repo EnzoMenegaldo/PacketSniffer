@@ -14,6 +14,7 @@ import com.android.volley.toolbox.Volley;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.BatteryUsageReceiver;
 import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.StrategyManager;
 import com.packetsniffer.emenegal.packetsniffer.util.PhoneResourcesUtil;
 
 public class Benchmark extends AsyncTask<String, Integer , Void> {
@@ -31,6 +32,8 @@ public class Benchmark extends AsyncTask<String, Integer , Void> {
 
     @Override
     protected Void doInBackground(String... params) {
+        StrategyManager.INSTANCE.initialize(context);
+
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -40,11 +43,9 @@ public class Benchmark extends AsyncTask<String, Integer , Void> {
         });
 
         //  PhoneResourcesUtil.INSTANCE.startCpuMonitoring();
-        BatteryUsageReceiver batteryUsageReceiver = BatteryUsageReceiver.INSTANCE;
-        context.registerReceiver(batteryUsageReceiver,batteryUsageReceiver.getIntentFilter());
         publishProgress(0);
         int k = 0 ;
-        for(int i = 0 ; i < 300; i++) {
+        for(int i = 0 ; i < 2; i++) {
             for (String url : urls) {
                 sendRequest(new StringRequest(Request.Method.GET, url,null, null));
                 k++;
@@ -60,10 +61,9 @@ public class Benchmark extends AsyncTask<String, Integer , Void> {
             System.out.println(i);
         }
 
-
         //PhoneResourcesUtil.INSTANCE.stopCpuMonitoring();
-        context.unregisterReceiver(batteryUsageReceiver);
-        BatteryUsageReceiver.INSTANCE.closeLogFile();
+        StrategyManager.INSTANCE.stop(context);
+
         Intent intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         publishProgress(1);

@@ -1,5 +1,10 @@
 package com.packetsniffer.emenegal.packetsniffer.api.strategy;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.BPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.EPrecision;
 import com.packetsniffer.emenegal.packetsniffer.api.strategy.annotation.IPrecision;
@@ -76,6 +81,20 @@ public class Util {
             }
         }else
             throw new ClassNotFoundException();
+    }
+
+
+    /**
+     * Return true if the phone is currently charging else return false
+     * @param context
+     * @return
+     */
+    public static boolean isCharging(Context context){
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, ifilter);
+
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        return status == BatteryManager.BATTERY_STATUS_CHARGING ;
     }
 
 }

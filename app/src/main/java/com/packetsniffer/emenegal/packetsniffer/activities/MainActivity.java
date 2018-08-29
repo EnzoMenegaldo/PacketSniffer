@@ -28,7 +28,6 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
     private static final int REQUEST_CODE_VPN = 0;
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private BatteryUsageReceiver batteryUsageReceiver;
     private static Context context;
     private Handler handler;
     private Benchmark benchmark;
@@ -44,6 +43,7 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         setContentView(R.layout.activity_main);
 
         context = getApplicationContext();
+
 
         Switch vpn_switch = (Switch)findViewById(R.id.switch_vpn);
         vpn_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -61,10 +61,8 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         });
 
         handler = new Handler();
-        benchmark = new Benchmark(handler,context);
 
-        batteryUsageReceiver = BatteryUsageReceiver.INSTANCE;
-        registerReceiver(batteryUsageReceiver,batteryUsageReceiver.getIntentFilter());
+        benchmark = new Benchmark(handler,context);
 
         Button btnBenchmark = (Button)findViewById(R.id.btnRunBenchmark);
         btnBenchmark.setOnClickListener(new View.OnClickListener() {
@@ -76,14 +74,10 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
         setupVpn();
 
-        StrategyManager.INSTANCE.setStrategy(new UnPluggedResourceStrategy());
-
-        PhoneResourcesUtil.INSTANCE.getAvailableMemory();
         //PhoneResourcesUtil.INSTANCE.startCpuMonitoring();
     }
     protected void onResume() {
         super.onResume();
-        super.registerReceiver(batteryUsageReceiver, batteryUsageReceiver.getIntentFilter());
     }
 
     @Override
@@ -94,7 +88,6 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(batteryUsageReceiver);
         super.onDestroy();
     }
 

@@ -1,8 +1,11 @@
 package com.packetsniffer.emenegal.packetsniffer.api.strategy;
 
 
-import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.ICollectionStrategy;
+import android.content.Context;
 
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.ICollectionStrategy;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.PluggedResourceStrategy;
+import com.packetsniffer.emenegal.packetsniffer.api.strategy.strategy.UnPluggedResourceStrategy;
 
 public class StrategyManager {
     public static final String TAG = StrategyManager.class.getSimpleName();
@@ -17,6 +20,29 @@ public class StrategyManager {
 
     public ICollectionStrategy getStrategy() {
         return strategy;
+    }
+
+    /**
+     * Set the strategy according to the current charging state.
+     * Then register the broadcast receiver to gather the battery state.
+     * @param context
+     */
+    public void initialize(Context context){
+       if(Util.isCharging(context))
+            strategy = new PluggedResourceStrategy();
+        else
+            strategy = new UnPluggedResourceStrategy();
+
+        context.registerReceiver(BatteryUsageReceiver.INSTANCE,BatteryUsageReceiver.INSTANCE.getIntentFilter());
+    }
+
+    /**
+     * Unregister the broadcast receiver and close the battery log file.
+     * @param context
+     */
+    public void stop(Context context){
+        context.unregisterReceiver(BatteryUsageReceiver.INSTANCE);
+        BatteryUsageReceiver.INSTANCE.closeLogFile();
     }
 
 }
