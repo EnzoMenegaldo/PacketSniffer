@@ -19,4 +19,6 @@ Java_com_packetsniffer_emenegal_packetsniffer_packet_Packet_get_1uid(JNIEnv *env
 
     (*env)->ReleaseStringUTFChars(env, sourceIP_, sourceIP);
     (*env)->ReleaseStringUTFChars(env, destinationIP_, destinationIP);
+
+    return uid;
 }

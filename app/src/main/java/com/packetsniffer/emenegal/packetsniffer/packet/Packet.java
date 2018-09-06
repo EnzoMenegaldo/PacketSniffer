@@ -70,7 +70,9 @@ public class Packet {
 
 	private boolean inComing;
 
-	public Packet(@NonNull IPv4Header ipHeader, @NonNull ITransportHeader transportHeader, @NonNull byte[] data) {
+	private int tcpPayloadLength;
+
+	public Packet(@NonNull IPv4Header ipHeader, @NonNull ITransportHeader transportHeader, @NonNull byte[] data, int tcpPayloadLength) {
 		this.ipHeader = ipHeader;
 		this.transportHeader = transportHeader;
 		if (transportHeader instanceof TCPHeader) {
@@ -84,6 +86,7 @@ public class Packet {
 		}
 		buffer = data;
 
+		this.tcpPayloadLength = tcpPayloadLength;
 
 		if(applicationID > 0)
 			applicationName =  PacketSnifferService.PackageManager.getNameForUid(applicationID);
@@ -190,15 +193,15 @@ public class Packet {
 	}
 
 	/**
-	 * We try to create a tlsHeader using the tcp payload.
-	 * If it's actually a TLSPacket then we check if it's the first packet.
+	 * First we check whether the packet is a TLSPacket or not.
+	 * If it's actually a TLSPacket then we check if it's the first packet of the protocol.
 	 * If it is then we can get the server name and finally we save this packet in the database .
 	 */
 	public boolean checkTLSProtocol(){
 		if(transportHeader.getDestinationPort() == HTTPS_PORT){
-			ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+			int headerLength = ipHeader.getIPHeaderLength()+((TCPHeader)transportHeader).getTCPHeaderLength();
+			ByteBuffer byteBuffer = ByteBuffer.wrap(buffer,headerLength,tcpPayloadLength);
 			if(byteBuffer.hasRemaining()) {
-				final byte[] tcpPayload = byteBuffer.array();
 				byte type = byteBuffer.get();
 				if(type == TLSHeader.HANDSHAKE){
 					short version = byteBuffer.getShort();
@@ -230,9 +233,9 @@ public class Packet {
 	public void checkHTTProtocol(){
 		//Avoid packet which are destined to another port than 80
 		if(transportHeader.getDestinationPort() == HTTP_PORT){
-			ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+			int headerLength = ipHeader.getIPHeaderLength()+((TCPHeader)transportHeader).getTCPHeaderLength();
+			ByteBuffer byteBuffer = ByteBuffer.wrap(buffer,headerLength,tcpPayloadLength);
 			if(byteBuffer.hasRemaining()) {
-				final byte[] tcpPayload = byteBuffer.array();
 				try {
 					ByteBuffer tmpBuffer = byteBuffer.slice();
 					List<Header> headers = HTTPUtil.parseHeaders(new ByteArrayInputStream(tmpBuffer.array()),HTTP_ELEMENT_CHARSET);

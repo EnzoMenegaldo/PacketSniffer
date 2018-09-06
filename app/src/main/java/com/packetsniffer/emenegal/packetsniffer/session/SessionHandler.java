@@ -22,6 +22,7 @@ import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -96,20 +97,17 @@ public class SessionHandler {
 	}
 
 	private void handleTCPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, TCPHeader tcpheader){
-//		int length = clientPacketData.length;
 		int dataLength = clientPacketData.limit() - clientPacketData.position();
 		int sourceIP = ipHeader.getSourceIP();
 		int destinationIP = ipHeader.getDestinationIP();
 		int sourcePort = tcpheader.getSourcePort();
 		int destinationPort = tcpheader.getDestinationPort();
 
-
+		byte[] tt = clientPacketData.array();
 		//https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html#duplicate()
-		Packet packet = new Packet(ipHeader,tcpheader,clientPacketData.duplicate().array());
+		Packet packet = new Packet(ipHeader,tcpheader,clientPacketData.duplicate().array(),dataLength);
 		packet.checkTLSProtocol();
 		packet.checkHTTProtocol();
-		PacketManager.INSTANCE.addPacket(packet);
-
 
 		if(tcpheader.isSYN()) {
 			//3-way handshake + create new session

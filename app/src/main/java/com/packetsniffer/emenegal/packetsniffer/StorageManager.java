@@ -2,16 +2,18 @@ package com.packetsniffer.emenegal.packetsniffer;
 
 import android.util.Log;
 
+
+import com.emenegal.battery_saving.annotation.ResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
 import com.emenegal.battery_saving.annotation.BPrecision;
 import com.packetsniffer.emenegal.packetsniffer.database.DBHelper;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
-import com.packetsniffer.emenegal.packetsniffer.transport.tcp.TCPHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.udp.UDPHeader;
 
 import java.io.IOException;
 
+@ResourceStrategy
 public class StorageManager{
 
     public static final String TAG = StorageManager.class.getSimpleName();
@@ -19,17 +21,17 @@ public class StorageManager{
     public static final StorageManager INSTANCE = new StorageManager();
 
     @BPrecision(value = true,threshold = 90)
-    public static boolean storePacketInFile;
+    public static boolean storePacketInFile = true;
     @BPrecision(value = true,threshold = 60)
-    public static boolean storeIncoming;
+    public static boolean storeIncoming = true;
     @BPrecision(value = true, threshold = 50)
-    public static boolean storeUDP;
+    public static boolean storeUDP = true;
     @BPrecision(value = true, threshold = 35)
-    public static boolean storeHTTP;
+    public static boolean storeHTTP = true;
     @BPrecision(value = true,threshold = 10)
-    public static boolean storeHTTPS;
+    public static boolean storeHTTPS = true;
     @BPrecision(value = true,threshold = 80)
-    public static boolean storePacketInDB;
+    public static boolean storePacketInDB = true;
 
     private StorageManager(){}
 
@@ -40,7 +42,7 @@ public class StorageManager{
      */
     public void storePacket(Packet packet) {
         boolean store = false;
-        if(storePacketInDB){
+        if(!storePacketInDB){
             if(packet.isInComing() && !storeIncoming){
                 return;
             }else{
@@ -56,6 +58,8 @@ public class StorageManager{
                         store = true;
                 }
             }
+        }else{
+            store = true;
         }
 
         if(store)
@@ -96,7 +100,7 @@ public class StorageManager{
      * @param packet
      */
     private void savePacketInDB(Packet packet){
-        Log.i(TAG,"Add packet to DB");
+        //Log.i(TAG,"Add packet to DB");
         DBHelper.INSTANCE.getDBHelper(MainActivity.getContext()).getNetActivityDao().create(packet.getPacketModel());
     }
 

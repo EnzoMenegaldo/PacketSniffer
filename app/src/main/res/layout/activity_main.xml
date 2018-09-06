@@ -19,18 +19,19 @@
         android:layout_height="wrap_content"
         android:text="@string/run_vpn"
         android:layout_above="@+id/switch_vpn"
-        android:layout_centerHorizontal="true" />*
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnStop"
-        android:text="Stop App"/>
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnRunBenchmark"
-        android:text="Run Benchmark"
-        android:layout_below="@+id/btnStop"/>
+        android:text="Run Benchmark" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/currentLoop"
+        android:text="current loop : "
+        android:layout_below="@+id/btnRunBenchmark" />
 
 </RelativeLayout>

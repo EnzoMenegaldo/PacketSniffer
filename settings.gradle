@@ -1,1 +1,1 @@
-include ':app', ':battery-saving'
+include ':app', ':app-debug'

@@ -351,7 +351,7 @@ public class TCPPacketFactory {
 		int sendertimestamp = (int)currentdate.getTime();
 		tcpheader.setTimeStampSender(sendertimestamp);
 		
-		return new Packet(ipheader, tcpheader, createPacketData(ipheader, tcpheader, null));
+		return new Packet(ipheader, tcpheader, createPacketData(ipheader, tcpheader, null),0);
 	}
 
 	/**
@@ -383,7 +383,7 @@ public class TCPPacketFactory {
 		byte[] ipChecksum = PacketUtil.calculateChecksum(buffer, 0, ipBuffer.length);
 		//write result of checksum back to buffer
 		System.arraycopy(ipChecksum, 0, buffer, 10, 2);
-		
+
 		//zero out TCP header checksum first
 		int tcpStart = ipBuffer.length;
 		System.arraycopy(zero, 0, buffer, tcpStart + 16, 2);
@@ -392,7 +392,6 @@ public class TCPPacketFactory {
 		
 		//write new checksum back to array
 		System.arraycopy(tcpChecksum, 0, buffer,tcpStart + 16, 2);
-
 		//We are interested only by the packets coming from the mobile application
 		//PacketManager.add(new Packet(ipHeader, tcpheader, buffer), Home_CustomViewActivity.getContext());
 
@@ -422,7 +421,7 @@ public class TCPPacketFactory {
 		ackNumber.order(ByteOrder.BIG_ENDIAN);
 		ackNumber.putInt((int)header.getAckNumber());
 		System.arraycopy(ackNumber.array(), 0, buffer, 8, 4);
-		
+
 		buffer[12] = (byte) (header.isNS() ? (header.getDataOffset() << 4) | 0x1
 				: header.getDataOffset() << 4);
 		buffer[13] = (byte)header.getTcpFlags();

@@ -11,12 +11,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
+import com.emenegal.battery_saving.annotation.BPrecision;
 import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.R;
 import com.packetsniffer.emenegal.packetsniffer.benchmark.Benchmark;
 import com.packetsniffer.emenegal.packetsniffer.database.OrmLiteDBHelper;
 import com.packetsniffer.emenegal.packetsniffer.util.PhoneStateUtil;
+
+import java.lang.reflect.Field;
+import java.util.List;
 
 
 public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
@@ -25,8 +30,9 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static Context context;
+
     private Handler handler;
-    private Benchmark benchmark;
+    private TextView currentLoop;
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -40,6 +46,7 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
         context = getApplicationContext();
 
+        currentLoop = (TextView) findViewById(R.id.currentLoop);
 
         Switch vpn_switch = (Switch)findViewById(R.id.switch_vpn);
         vpn_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -58,19 +65,15 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
         handler = new Handler();
 
-        benchmark = new Benchmark(handler,context);
-
         Button btnBenchmark = (Button)findViewById(R.id.btnRunBenchmark);
         btnBenchmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                benchmark.execute();
+                new Benchmark(MainActivity.this).execute();
             }
         });
 
         setupVpn();
-
-        //PhoneResourcesUtil.INSTANCE.startCpuMonitoring();
     }
     protected void onResume() {
         super.onResume();
@@ -108,4 +111,17 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
             e.printStackTrace();
         }
     }
+
+    public void updateCurrentLoop(long i){
+        currentLoop.setText("current loop : "+i);
+    }
+
+    public Handler getHandler() {
+        return handler;
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+
 }
