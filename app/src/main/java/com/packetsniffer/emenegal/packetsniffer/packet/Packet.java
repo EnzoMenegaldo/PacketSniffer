@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import com.packetsniffer.emenegal.packetsniffer.database.PacketModel;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 import com.packetsniffer.emenegal.packetsniffer.*;
+import com.packetsniffer.emenegal.packetsniffer.packetRebuild.ByteUtils;
 import com.packetsniffer.emenegal.packetsniffer.session.SessionHandler;
 import com.packetsniffer.emenegal.packetsniffer.tls.ServerNameExtension;
 import com.packetsniffer.emenegal.packetsniffer.tls.TLSHeader;
@@ -94,8 +95,14 @@ public class Packet {
 			applicationName = "unknown";
 
 		time = new Date();
+		isHttp = false;
+		isHttps = false;
 
+		if(PacketUtil.intToIPAddress(ipHeader.getDestinationIP()).equals(PacketSnifferService.IP_ADDRESS))
+			inComing = true;
 
+		checkHTTProtocol();
+		checkTLSProtocol();
 	}
 
 	/**
@@ -215,7 +222,7 @@ public class Packet {
 								String serverName = new String(serverNameExtension.getServerNameIndicationExtension().getServerName(), Charset.forName("UTF-8"));
 								if(PacketUtil.isInterestingServerName(serverName) && PacketUtil.isNewConnection(serverName)) {
 									this.setHostName(serverName);
-									PacketManager.INSTANCE.addPacket(this);
+									isHttps = true;
 								}
 							}
 						}
@@ -244,7 +251,7 @@ public class Packet {
 							//Add the packet to the DataBase
 							if(PacketUtil.isInterestingServerName(header.getValue())){
 								this.setHostName(header.getValue());
-								PacketManager.INSTANCE.addPacket(this);
+								isHttp = true;
 							}
 							break;
 						}

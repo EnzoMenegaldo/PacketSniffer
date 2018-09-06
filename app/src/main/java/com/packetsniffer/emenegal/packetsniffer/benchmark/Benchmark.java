@@ -17,6 +17,8 @@ import java.io.IOException;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
+
 import javax.net.ssl.HttpsURLConnection;
 
 import static org.apache.commons.httpclient.params.HttpMethodParams.USER_AGENT;
@@ -26,8 +28,8 @@ public class Benchmark extends AsyncTask<String, Long , Void> {
 
     private static final String REQUEST_TAG = "TAG";
     //private static final String[] urls = {"https://www.google.com","https://fleep.io","https://intranet.inria.fr","https://developer.android.com","https://stackoverflow.com","https://github.com","https://www.google.fr","https://www.google.ca","https://www.spotify.com/fr/","https://www.instagram.com/?hl=fr","https://www.apple.com/fr/","https://www.pinterest.fr/","https://www.deezer.com/fr/","https://fr.linkedin.com/","https://www.whatsapp.com/","https://www.youtube.com","https://www.facebook.com","https://www.amazon.com","https://www.ebay.com","https://www.twitter.com"};
-    //private static final String[] urls = {"https://www.google.com","https://www.instagram.com/?hl=fr","https://www.apple.com/fr/","https://www.pinterest.fr/","https://www.deezer.com/fr/","https://fr.linkedin.com/","https://www.whatsapp.com/","https://www.youtube.com","https://www.facebook.com","https://www.amazon.com"};
-    private static final String[] urls = {"https://www.google.com","http://www.lefigaro.fr/"};
+    private static final String[] urls = {"https://www.google.com","https://www.instagram.com/?hl=fr","https://www.apple.com/fr/","https://www.pinterest.fr/","https://www.deezer.com/fr/","https://fr.linkedin.com/","https://www.whatsapp.com/","https://www.youtube.com","https://www.facebook.com","https://www.amazon.com"};
+
     private Handler handler;
     private Context context;
 
@@ -59,7 +61,8 @@ public class Benchmark extends AsyncTask<String, Long , Void> {
         //Time in ms
         long duration = 240*60*1000;
 
-        while(currentDate < startingDate + duration) {
+        executeGet(urls[1]);
+      /*  while(currentDate < startingDate + duration) {
 
             for (String url : urls) {
                 executeGet(url);
@@ -71,13 +74,13 @@ public class Benchmark extends AsyncTask<String, Long , Void> {
             }
             currentDate = System.currentTimeMillis();
             publishProgress(currentDate-startingDate);
-        }
+        }*/
 
         PhoneResourcesUtil.INSTANCE.stopMonitoring();
         //StrategyManager.INSTANCE.stop(context);
 
-        /*
-        Intent intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
+
+/*        Intent intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);*/
         publishProgress((long) -1);
         return null;

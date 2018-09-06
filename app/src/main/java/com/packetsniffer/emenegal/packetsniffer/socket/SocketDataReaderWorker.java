@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.packetsniffer.emenegal.packetsniffer.IClientPacketWriter;
+import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
+import com.packetsniffer.emenegal.packetsniffer.packet.PacketManager;
 import com.packetsniffer.emenegal.packetsniffer.session.Session;
 import com.packetsniffer.emenegal.packetsniffer.session.SessionManager;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPPacketFactory;
@@ -187,6 +189,7 @@ class SocketDataReaderWorker implements Runnable {
 			try {
 				writer.write(data);
 				pData.addData(data);
+				PacketManager.INSTANCE.addPacket(new Packet(ipHeader,tcpheader,data,packetBody.length));
 			} catch (IOException e) {
 				Log.e(TAG,"Failed to send ACK + Data packet: " + e.getMessage());
 			}
@@ -202,6 +205,7 @@ class SocketDataReaderWorker implements Runnable {
 		try {
 			writer.write(data);
 			pData.addData(data);
+			PacketManager.INSTANCE.addPacket(new Packet(session.getLastIpHeader(),session.getLastTcpHeader(),data,0));
 		} catch (IOException e) {
 			Log.e(TAG,"Failed to send FIN packet: " + e.getMessage());
 		}
@@ -232,6 +236,7 @@ class SocketDataReaderWorker implements Runnable {
 					writer.write(packetData);
 					//publish to packet subscriber
 					pData.addData(packetData);
+					PacketManager.INSTANCE.addPacket(new Packet(session.getLastIpHeader(),session.getLastUdpHeader(),data,0));
 					Log.d(TAG,"SDR: sent " + len + " bytes to UDP client, packetData.length: "
 							+ packetData.length);
 					buffer.clear();

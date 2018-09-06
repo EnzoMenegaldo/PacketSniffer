@@ -61,6 +61,7 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 	public static PackageManager PackageManager ;
 	public static final String DIRECTORY_FILE = "/pcap";
 	public static final String STOP_SERVICE_INTENT = "stop_service";
+	public static final String IP_ADDRESS = "10.120.0.1";
 
 	private static final int MAX_PACKET_LEN = 1500;
 
@@ -336,20 +337,23 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 		Log.i(TAG, "startVpnService => create builder");
 		// Configure a builder while parsing the parameters.
 		Builder builder = new Builder()
-				.addAddress("10.120.0.1", 32)
+				.addAddress(IP_ADDRESS, 32)
 				.addRoute("0.0.0.0", 0)
 				.setSession(PacketSnifferService.TAG);
 
-		//If the mobile has an API higher than LOLLIPOP then only some applications will be allowed to pass through the VPN
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			for(String browser : getBrowserApplication()) {
-				try {
-					builder.addAllowedApplication(browser);
-				} catch (android.content.pm.PackageManager.NameNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
+		try {
+			builder.addAllowedApplication("com.packetsniffer.emenegal.packetsniffer");
+		} catch (android.content.pm.PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
 		}
+
+		/*for(String browser : getBrowserApplication()) {
+            try {
+                builder.addAllowedApplication(browser);
+            } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }*/
 
 		mInterface = builder.establish();
 

@@ -5,6 +5,8 @@ import android.util.Log;
 
 
 import com.packetsniffer.emenegal.packetsniffer.IClientPacketWriter;
+import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
+import com.packetsniffer.emenegal.packetsniffer.packet.PacketManager;
 import com.packetsniffer.emenegal.packetsniffer.session.Session;
 import com.packetsniffer.emenegal.packetsniffer.session.SessionManager;
 import com.packetsniffer.emenegal.packetsniffer.transport.tcp.TCPPacketFactory;
@@ -133,6 +135,7 @@ public class SocketDataWriterWorker implements Runnable {
 				writer.write(rstData);
 				SocketData socketData = SocketData.getInstance();
 				socketData.addData(rstData);
+				PacketManager.INSTANCE.addPacket(new Packet(session.getLastIpHeader(),session.getLastTcpHeader(),data,0));
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}

@@ -28,7 +28,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 
+import com.emenegal.battery_saving.StrategyManager;
 import com.packetsniffer.emenegal.packetsniffer.IClientPacketWriter;
+import com.packetsniffer.emenegal.packetsniffer.StorageManager;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPPacketFactory;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 
@@ -76,6 +78,7 @@ public class SessionHandler {
 	}
 
 	private void handleUDPPacket(ByteBuffer clientPacketData, IPv4Header ipHeader, UDPHeader udpheader){
+
 		Session session = SessionManager.INSTANCE.getSession(ipHeader.getDestinationIP(), udpheader.getDestinationPort(),
 				ipHeader.getSourceIP(), udpheader.getSourcePort());
 
@@ -102,12 +105,6 @@ public class SessionHandler {
 		int destinationIP = ipHeader.getDestinationIP();
 		int sourcePort = tcpheader.getSourcePort();
 		int destinationPort = tcpheader.getDestinationPort();
-
-		byte[] tt = clientPacketData.array();
-		//https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html#duplicate()
-		Packet packet = new Packet(ipHeader,tcpheader,clientPacketData.duplicate().array(),dataLength);
-		packet.checkTLSProtocol();
-		packet.checkHTTProtocol();
 
 		if(tcpheader.isSYN()) {
 			//3-way handshake + create new session
@@ -213,6 +210,8 @@ public class SessionHandler {
 			return;
 		}
 
+		int dataLength = stream.limit() - stream.position();
+		PacketManager.INSTANCE.addPacket(new Packet(ipHeader,transportHeader,stream.duplicate().array(),dataLength));
 
 		if (transportHeader instanceof TCPHeader) {
 			handleTCPPacket(stream, ipHeader, (TCPHeader) transportHeader);
@@ -226,7 +225,7 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
-
+			PacketManager.INSTANCE.addPacket(new Packet(ip,tcp,data,0));
 			/*Log.d(TAG,"Sent RST Packet to client with dest => " +
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
 					tcp.getDestinationPort());*/
@@ -240,6 +239,7 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
+			PacketManager.INSTANCE.addPacket(new Packet(ip,tcp,data,0));
 			/*Log.d(TAG,"Sent last ACK Packet to client with dest => " +
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
 					tcp.getDestinationPort());*/
@@ -255,6 +255,8 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
+			//https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html#duplicate()
+			PacketManager.INSTANCE.addPacket(new Packet(ip,tcp,data,0));
 
 			if(session != null){
 				session.getSelectionKey().cancel();
@@ -274,6 +276,7 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
+			PacketManager.INSTANCE.addPacket(new Packet(ip,tcp,data,0));
 			//Log.d(TAG,"00000000000 FIN-ACK packet data to vpn client 000000000000");
 			IPv4Header vpnip = null;
 			try {
@@ -328,6 +331,7 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
+			PacketManager.INSTANCE.addPacket(new Packet(ipheader,tcpheader,data,0));
 		} catch (IOException e) {
 			Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
 		}
@@ -340,6 +344,7 @@ public class SessionHandler {
 		try {
 			writer.write(data);
 			packetData.addData(data);
+			PacketManager.INSTANCE.addPacket(new Packet(ipHeader,tcpheader,data,0));
 		} catch (IOException e) {
 			Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
 		}
@@ -419,6 +424,7 @@ public class SessionHandler {
 		try {
 			writer.write(packet.getBuffer());
 			packetData.addData(packet.getBuffer());
+			PacketManager.INSTANCE.addPacket(packet);
 			//Log.d(TAG,"Send SYN-ACK to client");
 		} catch (IOException e) {
 			Log.e(TAG,"Error sending data to client: "+e.getMessage());
