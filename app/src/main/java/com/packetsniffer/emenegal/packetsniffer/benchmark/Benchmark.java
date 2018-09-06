@@ -61,9 +61,7 @@ public class Benchmark extends AsyncTask<String, Long , Void> {
         //Time in ms
         long duration = 240*60*1000;
 
-        executeGet(urls[1]);
-      /*  while(currentDate < startingDate + duration) {
-
+        while(currentDate < startingDate + duration) {
             for (String url : urls) {
                 executeGet(url);
                 try {
@@ -74,14 +72,19 @@ public class Benchmark extends AsyncTask<String, Long , Void> {
             }
             currentDate = System.currentTimeMillis();
             publishProgress(currentDate-startingDate);
-        }*/
+        }
 
         PhoneResourcesUtil.INSTANCE.stopMonitoring();
         //StrategyManager.INSTANCE.stop(context);
 
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-/*        Intent intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);*/
+        Intent intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         publishProgress((long) -1);
         return null;
     }
