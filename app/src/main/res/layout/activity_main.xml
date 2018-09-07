@@ -7,20 +7,6 @@
     tools:context=".activities.MainActivity">
 
 
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/switch_vpn"
-        android:layout_centerInParent="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/run_vpn"
-        android:layout_above="@+id/switch_vpn"
-        android:layout_centerHorizontal="true" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,8 +16,16 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/currentLoop"
-        android:text="current loop : "
+        android:id="@+id/currentTime"
+        android:text="current time : "
         android:layout_below="@+id/btnRunBenchmark" />
+
+    <com.emenegal.battery_saving.component.AnnotationList
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/annotation_list"
+        android:layout_below="@id/currentTime"
+        android:layout_marginTop="10dp"
+        />
 
 </RelativeLayout>

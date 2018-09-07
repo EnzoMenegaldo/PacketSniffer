@@ -2,7 +2,6 @@ package com.packetsniffer.emenegal.packetsniffer;
 
 import android.util.Log;
 
-
 import com.emenegal.battery_saving.annotation.ResourceStrategy;
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
 import com.emenegal.battery_saving.annotation.BPrecision;
@@ -10,11 +9,12 @@ import com.packetsniffer.emenegal.packetsniffer.database.DBHelper;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
 import com.packetsniffer.emenegal.packetsniffer.transport.udp.UDPHeader;
-
 import java.io.IOException;
 
 @ResourceStrategy
 public class StorageManager{
+
+
 
     public static final String TAG = StorageManager.class.getSimpleName();
 
@@ -22,7 +22,7 @@ public class StorageManager{
 
     @BPrecision(value = true,threshold = 90)
     public static boolean storePacketInFile = true;
-    @BPrecision(value = true,threshold = 60)
+    @BPrecision(value = true,threshold = 85)
     public static boolean storeIncoming = true;
     @BPrecision(value = true, threshold = 50)
     public static boolean storeUDP = true;

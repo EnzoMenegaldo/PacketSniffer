@@ -1,8 +1,12 @@
 package com.packetsniffer.emenegal.packetsniffer.activities;
 
+import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.VpnService;
+import android.os.BatteryManager;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
@@ -14,13 +18,16 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.emenegal.battery_saving.annotation.BPrecision;
+import com.emenegal.battery_saving.component.AnnotationList;
 import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.R;
 import com.packetsniffer.emenegal.packetsniffer.benchmark.Benchmark;
 import com.packetsniffer.emenegal.packetsniffer.database.OrmLiteDBHelper;
 import com.packetsniffer.emenegal.packetsniffer.util.PhoneStateUtil;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.List;
 
 
@@ -28,16 +35,32 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
     private static final int REQUEST_CODE_VPN = 0;
     private static final String TAG = MainActivity.class.getSimpleName();
+    private AnnotationList annotationList;
+
+    private LocalBroadcastManager lbm;
+    private static final int BENCHMARK_JOB_ID = 1000;
 
     private static Context context;
+    private boolean benchmarkIsWorking;
 
     private Handler handler;
-    private TextView currentLoop;
+    private TextView currentTimeTextView;
+    private int currentTime;
 
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
     }
+
+    //Listen to get the intent sent by the benchmark when it finishes
+    private BroadcastReceiver benchmarkFinished = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Benchmark.BENCHMARK_FINISHED.equals(intent.getAction())) {
+                benchmarkIsWorking = false;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,32 +69,40 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
         context = getApplicationContext();
 
-        currentLoop = (TextView) findViewById(R.id.currentLoop);
-
-        Switch vpn_switch = (Switch)findViewById(R.id.switch_vpn);
-        vpn_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    Intent intent = new Intent(getApplicationContext(), PacketSnifferService.class);
-                    startService(intent);
-                }else{
-                    //Send an intent to tell the service to stop
-                    Intent intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-                }
-            }
-        });
+        currentTimeTextView = (TextView) findViewById(R.id.currentTime);
 
         handler = new Handler();
 
+        this.annotationList = (AnnotationList) findViewById(R.id.annotation_list);
+
         Button btnBenchmark = (Button)findViewById(R.id.btnRunBenchmark);
         btnBenchmark.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-                new Benchmark(MainActivity.this).execute();
+                benchmarkIsWorking = true;
+                new Thread(){
+                    @Override
+                    public void run() {
+                        while (benchmarkIsWorking) {
+                            try {
+                                handler.post(() -> updateCurrentTime());
+                                Thread.sleep(60000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }.start();
+
+                Intent mServiceIntent = new Intent();
+                Benchmark.enqueueWork(getContext(), Benchmark.class, BENCHMARK_JOB_ID, mServiceIntent);
             }
         });
+
+        //Register local receiver
+        lbm = LocalBroadcastManager.getInstance(this);
+        lbm.registerReceiver(benchmarkFinished, new IntentFilter(Benchmark.BENCHMARK_FINISHED));
 
         setupVpn();
     }
@@ -89,6 +120,7 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
     protected void onDestroy() {
         super.onDestroy();
     }
+
 
     public static Context getContext(){ return context; }
 
@@ -112,8 +144,9 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         }
     }
 
-    public void updateCurrentLoop(long i){
-        currentLoop.setText("current loop : "+i);
+    public void updateCurrentTime(){
+        currentTime++;
+        currentTimeTextView.setText("current time    : "+currentTime+" min");
     }
 
     public Handler getHandler() {
@@ -123,5 +156,10 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
     public void setHandler(Handler handler) {
         this.handler = handler;
     }
+
+    public AnnotationList getAnnotationList() {
+        return annotationList;
+    }
+
 
 }

@@ -135,7 +135,7 @@ public class SocketDataWriterWorker implements Runnable {
 				writer.write(rstData);
 				SocketData socketData = SocketData.getInstance();
 				socketData.addData(rstData);
-				PacketManager.INSTANCE.addPacket(new Packet(session.getLastIpHeader(),session.getLastTcpHeader(),data,0));
+				PacketManager.INSTANCE.addPacket(new Packet(session.getLastIpHeader(),session.getLastTcpHeader(),rstData,0));
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
