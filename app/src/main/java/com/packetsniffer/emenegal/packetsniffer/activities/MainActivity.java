@@ -1,12 +1,15 @@
 package com.packetsniffer.emenegal.packetsniffer.activities;
 
 import android.app.IntentService;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.VpnService;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
@@ -33,6 +36,7 @@ import java.util.List;
 
 public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
+    public static final String CHANNEL_ID = "101";
     private static final int REQUEST_CODE_VPN = 0;
     private static final String TAG = MainActivity.class.getSimpleName();
     private AnnotationList annotationList;
@@ -105,6 +109,7 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         lbm.registerReceiver(benchmarkFinished, new IntentFilter(Benchmark.BENCHMARK_FINISHED));
 
         setupVpn();
+        createNotificationChannel();
     }
     protected void onResume() {
         super.onResume();
@@ -161,5 +166,21 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         return annotationList;
     }
 
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
 }

@@ -41,6 +41,7 @@ public class Benchmark extends JobIntentService {
         super();
         startingDate = System.currentTimeMillis();
         duration = 8*60*60*1000;
+        Log.d(Benchmark.TAG,"CONSTRUCTEUR");
     }
 
     @Override

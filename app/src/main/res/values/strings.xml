@@ -2,4 +2,7 @@
     <string name="app_name">PacketSniffer</string>
     <string name="run_vpn">Run Vpn</string>
     <string name="vpn_interface">tun0</string>
+
+    <string name="channel_name">main_activity_channel</string>
+    <string name="channel_description">main activity channel to handle notification</string>
 </resources>
