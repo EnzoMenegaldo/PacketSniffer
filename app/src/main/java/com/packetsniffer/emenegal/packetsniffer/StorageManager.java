@@ -2,7 +2,13 @@ package com.packetsniffer.emenegal.packetsniffer;
 
 import android.util.Log;
 
+import com.emenegal.battery_saving.annotation.EPrecision;
+import com.emenegal.battery_saving.annotation.IPrecision;
 import com.emenegal.battery_saving.annotation.ResourceStrategy;
+import com.emenegal.battery_saving.enumeration.IEnum;
+import com.emenegal.battery_saving.method.ExponentialMethod;
+import com.emenegal.battery_saving.method.LinearMethod;
+import com.emenegal.battery_saving.method.LogarithmMethod;
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
 import com.emenegal.battery_saving.annotation.BPrecision;
 import com.packetsniffer.emenegal.packetsniffer.database.DBHelper;
@@ -14,7 +20,8 @@ import java.io.IOException;
 @ResourceStrategy
 public class StorageManager{
 
-
+    @IPrecision(lower = 0, higher = 20, method = LinearMethod.class, params = {})
+    public static double aValue;
 
     public static final String TAG = StorageManager.class.getSimpleName();
 

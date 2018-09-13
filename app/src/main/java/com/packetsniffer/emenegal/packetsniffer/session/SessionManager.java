@@ -160,8 +160,12 @@ public enum SessionManager {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			}finally {
+				session.close();
+				Log.d(TAG,"Session closed -> " + key);
 			}
-			//Log.d(TAG,"closed session -> " + key);
+		}else{
+			Log.d(TAG,"Session null -> " + key);
 		}
 	}
 
@@ -169,7 +173,7 @@ public enum SessionManager {
 		String key = createKey(session.getDestIp(),
 				session.getDestPort(), session.getSourceIp(),
 				session.getSourcePort());
-		table.remove(key);
+		Session tmp = table.remove(key);
 
 		try {
 			AbstractSelectableChannel channel = session.getChannel();
@@ -178,8 +182,10 @@ public enum SessionManager {
 			}
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
+		}finally {
+			session.close();
+			Log.d(TAG,"closed session -> " + key);
 		}
-		//Log.d(TAG,"closed session -> " + key);
 	}
 
 	@Nullable
@@ -206,7 +212,6 @@ public enum SessionManager {
 
 		//initiate connection to reduce latency
 		String ips = PacketUtil.intToIPAddress(ip);
-		String sourceIpAddress = PacketUtil.intToIPAddress(srcIp);
 		SocketAddress socketAddress = new InetSocketAddress(ips, port);
 		//Log.d(TAG,"initialized connection to remote UDP server: " + ips + ":" + port + " from " + sourceIpAddress + ":" + srcPort);
 
@@ -230,7 +235,7 @@ public enum SessionManager {
 								SelectionKey.OP_WRITE);
 					}
 					session.setSelectionKey(selectionKey);
-					//Log.d(TAG,"Registered udp selector successfully");
+					//Log.d(TAG,"Registered udp selector successfully");Android debug get list size
 				}
 			}
 		} catch (ClosedChannelException e) {
@@ -259,7 +264,7 @@ public enum SessionManager {
 	public Session createNewSession(int ip, int port, int srcIp, int srcPort){
 		String key = createKey(ip, port, srcIp, srcPort);
 		if (table.containsKey(key)) {
-			//Log.e(TAG, "Session was already created.");
+			Log.e(TAG, "Session was already created.");
 			return null;
 		}
 
@@ -289,7 +294,7 @@ public enum SessionManager {
 
 		//initiate connection to reduce latency
 		SocketAddress socketAddress = new InetSocketAddress(ips, port);
-		//Log.d(TAG,"initiate connecting to remote tcp server: " + ips + ":" + port);
+		Log.d(TAG,"initiate connecting to remote tcp server: " + ips + ":" + port);
 		boolean connected;
 		try{
 			connected = channel.connect(socketAddress);

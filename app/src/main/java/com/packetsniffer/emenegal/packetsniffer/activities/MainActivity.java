@@ -1,6 +1,5 @@
 package com.packetsniffer.emenegal.packetsniffer.activities;
 
-import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -8,19 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.VpnService;
-import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.emenegal.battery_saving.annotation.BPrecision;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+
 import com.emenegal.battery_saving.component.AnnotationList;
 import com.packetsniffer.emenegal.packetsniffer.PacketSnifferService;
 import com.packetsniffer.emenegal.packetsniffer.R;
@@ -28,28 +25,24 @@ import com.packetsniffer.emenegal.packetsniffer.benchmark.Benchmark;
 import com.packetsniffer.emenegal.packetsniffer.database.OrmLiteDBHelper;
 import com.packetsniffer.emenegal.packetsniffer.util.PhoneStateUtil;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.List;
-
-
 public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
 
     public static final String CHANNEL_ID = "101";
     private static final int REQUEST_CODE_VPN = 0;
     private static final String TAG = MainActivity.class.getSimpleName();
     private AnnotationList annotationList;
+    private static int requestCounter = 0;
 
     private LocalBroadcastManager lbm;
-    private static final int BENCHMARK_JOB_ID = 1000;
 
     private static Context context;
-    private boolean benchmarkIsWorking;
 
     private Handler handler;
     private TextView currentTimeTextView;
+    private TextView requestCounterTextView;
     private int currentTime;
+
+    public static RequestQueue queue;
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -61,7 +54,12 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Benchmark.BENCHMARK_FINISHED.equals(intent.getAction())) {
-                benchmarkIsWorking = false;
+                Log.i(TAG,"Benchmark is finished");
+                System.exit(0);
+            }else if(Benchmark.BENCHMARK_RUNNING.equals(intent.getAction())){
+                updateRequestCounter(intent.getIntExtra("request",0));
+            }else if(Benchmark.BENCHMARK_UPDATE_TIMER.equals(intent.getAction())){
+                updateCurrentTime();
             }
         }
     };
@@ -72,45 +70,49 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         setContentView(R.layout.activity_main);
 
         context = getApplicationContext();
-
+        queue = Volley.newRequestQueue(this);
         currentTimeTextView = (TextView) findViewById(R.id.currentTime);
+        requestCounterTextView = (TextView) findViewById(R.id.requestCounter);
 
         handler = new Handler();
 
         this.annotationList = (AnnotationList) findViewById(R.id.annotation_list);
 
-        Button btnBenchmark = (Button)findViewById(R.id.btnRunBenchmark);
-        btnBenchmark.setOnClickListener(new View.OnClickListener() {
+        Switch btnBenchmark = (Switch) findViewById(R.id.switchRunBenchmark);
+        btnBenchmark.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked) {
+                Log.d(TAG,"start VPN");
+                Intent start_vpn_intent = new Intent(getApplicationContext(), PacketSnifferService.class);
+                startService(start_vpn_intent);
 
-            @Override
-            public void onClick(View view) {
-                benchmarkIsWorking = true;
-                new Thread(){
-                    @Override
-                    public void run() {
-                        while (benchmarkIsWorking) {
-                            try {
-                                handler.post(() -> updateCurrentTime());
-                                Thread.sleep(60000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }.start();
+                //StrategyManager.INSTANCE.initialize(context,activity.getAnnotationList());
 
-                Intent mServiceIntent = new Intent();
-                Benchmark.enqueueWork(getContext(), Benchmark.class, BENCHMARK_JOB_ID, mServiceIntent);
+                Log.d(TAG,"start benchmark");
+                Intent start_benchmark_intent = new Intent(getApplicationContext(),Benchmark.class);
+                startService(start_benchmark_intent);
+
+
+            }else {
+                //Send intent to stop the vpn service
+                Intent stop_vpn_intent = new Intent(PacketSnifferService.STOP_SERVICE_INTENT);
+                LocalBroadcastManager.getInstance(getContext()).sendBroadcast(stop_vpn_intent);
+
+                // StrategyManager.INSTANCE.stop(context);
             }
         });
 
         //Register local receiver
         lbm = LocalBroadcastManager.getInstance(this);
-        lbm.registerReceiver(benchmarkFinished, new IntentFilter(Benchmark.BENCHMARK_FINISHED));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Benchmark.BENCHMARK_FINISHED);
+        intentFilter.addAction(Benchmark.BENCHMARK_RUNNING);
+        intentFilter.addAction(Benchmark.BENCHMARK_UPDATE_TIMER);
+        lbm.registerReceiver(benchmarkFinished, new IntentFilter(intentFilter));
 
         setupVpn();
         createNotificationChannel();
     }
+
     protected void onResume() {
         super.onResume();
     }
@@ -154,6 +156,11 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
         currentTimeTextView.setText("current time    : "+currentTime+" min");
     }
 
+    public void updateRequestCounter(int i){
+        requestCounter += i;
+        requestCounterTextView.setText("requests    : "+requestCounter);
+    }
+
     public Handler getHandler() {
         return handler;
     }
@@ -182,5 +189,4 @@ public class MainActivity extends OrmLiteActionBarActivity<OrmLiteDBHelper> {
             notificationManager.createNotificationChannel(channel);
         }
     }
-
 }

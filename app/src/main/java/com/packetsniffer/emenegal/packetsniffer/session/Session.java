@@ -457,4 +457,13 @@ public class Session {
 	void setSelectionKey(SelectionKey selectionkey) {
 		this.selectionkey = selectionkey;
 	}
+
+	public void close(){
+		try {
+			sendingStream.close();
+			receivingStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

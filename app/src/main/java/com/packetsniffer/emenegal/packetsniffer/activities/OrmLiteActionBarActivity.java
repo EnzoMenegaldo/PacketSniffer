@@ -1,5 +1,6 @@
 package com.packetsniffer.emenegal.packetsniffer.activities;
 
+import com.crashlytics.android.Crashlytics;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.logger.Logger;
@@ -11,6 +12,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import java.sql.Timestamp;
+
+import io.fabric.sdk.android.Fabric;
+
 
 public class OrmLiteActionBarActivity<H extends OrmLiteSqliteOpenHelper> extends AppCompatActivity {
 
@@ -19,6 +24,7 @@ public class OrmLiteActionBarActivity<H extends OrmLiteSqliteOpenHelper> extends
 	private volatile boolean created = false;
 	private volatile boolean destroyed = false;
 	private static Logger logger = LoggerFactory.getLogger(OrmLiteActionBarActivity.class);
+	public static final long TIME = (new Timestamp(System.currentTimeMillis()).getTime());
 
 	/**
 	 * Get a helper for this action.
@@ -51,7 +57,7 @@ public class OrmLiteActionBarActivity<H extends OrmLiteSqliteOpenHelper> extends
 			helper = getHelperInternal(this);
 			created = true;
 		}
-
+		Fabric.with(this, new Crashlytics());
 		super.onCreate(savedInstanceState);
 	}
 

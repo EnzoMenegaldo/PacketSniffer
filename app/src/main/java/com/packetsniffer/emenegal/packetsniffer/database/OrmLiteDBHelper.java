@@ -10,8 +10,11 @@ import com.j256.ormlite.support.ConnectionSource;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 // Start of user code protected additional OrmLiteDBHelper imports
 import com.j256.ormlite.table.TableUtils;
+import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
+import com.packetsniffer.emenegal.packetsniffer.activities.OrmLiteActionBarActivity;
 // End of user code
 
 /**
@@ -20,9 +23,9 @@ import com.j256.ormlite.table.TableUtils;
 public class OrmLiteDBHelper extends OrmLiteSqliteOpenHelper{
 	
 	public static final String LOG_TAG = "OrmLiteDBHelper";
-	
+
 	// name of the database file for your application -- change to something appropriate for your app
-	private static final String DATABASE_NAME = "packets.db";
+	private static final String DATABASE_NAME = "packets"+"_"+ OrmLiteActionBarActivity.TIME+".db";
 	// any time you make changes to your database objects, you may have to increase the database version
 	// Start of user code OrmLiteDBHelper DB version MobilePrivacyProfiler
 	private static final int DATABASE_VERSION = 1;

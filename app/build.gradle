@@ -1,4 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
 
 android {
     compileSdkVersion 28
@@ -57,8 +62,14 @@ dependencies {
         transitive=true
     }
 
+    implementation ('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
+        transitive = true;
+    }
+
     implementation 'org.atteo.classindex:classindex:3.3'
     annotationProcessor 'org.atteo.classindex:classindex:3.3'
     testAnnotationProcessor 'org.atteo.classindex:classindex:3.3'
+
+    implementation 'com.android.volley:volley:1.1.1'
 
 }

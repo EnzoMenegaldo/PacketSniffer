@@ -35,6 +35,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.packetsniffer.emenegal.packetsniffer.activities.MainActivity;
+import com.packetsniffer.emenegal.packetsniffer.activities.OrmLiteActionBarActivity;
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packet.PacketPublisher;
 import com.packetsniffer.emenegal.packetsniffer.packetRebuild.PCapFileWriter;
@@ -53,6 +54,7 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -268,8 +270,7 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 				Log.e(TAG, "CANNOT make " + traceDir.toString());
 
 		// gen & open pcap file
-		//String sFileName = TAG+"_"+new Timestamp(System.currentTimeMillis()).getTime()+".pcapng";
-		String sFileName = TAG+".pcapng";
+		String sFileName = TAG+"_"+ OrmLiteActionBarActivity.TIME+".pcapng";
 		File pcapFile = new File(traceDir, sFileName);
 		pcapOutput = new PCapFileWriter(pcapFile);
 	}
@@ -351,7 +352,7 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 			e.printStackTrace();
 		}
 
-		/*for(String browser : getBrowserApplication()) {
+	/*	for(String browser : getBrowserApplication()) {
             try {
                 builder.addAllowedApplication(browser);
             } catch (android.content.pm.PackageManager.NameNotFoundException e) {

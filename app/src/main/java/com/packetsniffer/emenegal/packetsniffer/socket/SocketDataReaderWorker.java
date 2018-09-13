@@ -64,7 +64,7 @@ class SocketDataReaderWorker implements Runnable {
 		}
 
 		if(session.isAbortingConnection()) {
-			Log.d(TAG,"removing aborted connection -> "+ sessionKey);
+			//Log.d(TAG,"removing aborted connection -> "+ sessionKey);
 			session.getSelectionKey().cancel();
 			if (channel instanceof SocketChannel){
 				try {
@@ -109,8 +109,8 @@ class SocketDataReaderWorker implements Runnable {
 						sendToRequester(buffer, len, session);
 						buffer.clear();
 					} else if(len == -1) {
-						Log.d(TAG,"End of data from remote server, will send FIN to client");
-						Log.d(TAG,"send FIN to: " + sessionKey);
+						//Log.d(TAG,"End of data from remote server, will send FIN to client");
+						//Log.d(TAG,"send FIN to: " + sessionKey);
 						sendFin(session);
 						session.setAbortingConnection(true);
 					}

@@ -40,6 +40,7 @@ public class HTTPUtil {
             headers.add(new Header(name, value.toString()));
         }
 
+        is.close();
         return headers;
     }
 }

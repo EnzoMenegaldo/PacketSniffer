@@ -20,37 +20,25 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.List;
 
 
-import com.emenegal.battery_saving.StrategyManager;
+
 import com.packetsniffer.emenegal.packetsniffer.IClientPacketWriter;
-import com.packetsniffer.emenegal.packetsniffer.StorageManager;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPPacketFactory;
 import com.packetsniffer.emenegal.packetsniffer.network.ip.IPv4Header;
 
 import com.packetsniffer.emenegal.packetsniffer.packet.Packet;
 import com.packetsniffer.emenegal.packetsniffer.packet.PacketManager;
 import com.packetsniffer.emenegal.packetsniffer.socket.SocketData;
-import com.packetsniffer.emenegal.packetsniffer.tls.ServerNameExtension;
-import com.packetsniffer.emenegal.packetsniffer.tls.TLSHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.ITransportHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.tcp.PacketHeaderException;
 import com.packetsniffer.emenegal.packetsniffer.transport.tcp.TCPHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.tcp.TCPPacketFactory;
 import com.packetsniffer.emenegal.packetsniffer.transport.udp.UDPHeader;
 import com.packetsniffer.emenegal.packetsniffer.transport.udp.UDPPacketFactory;
-import com.packetsniffer.emenegal.packetsniffer.util.HTTPUtil;
 import com.packetsniffer.emenegal.packetsniffer.util.PacketUtil;
-
-import org.apache.commons.httpclient.Header;
-
-import static org.apache.commons.httpclient.params.HttpMethodParams.HTTP_ELEMENT_CHARSET;
 
 
 /**

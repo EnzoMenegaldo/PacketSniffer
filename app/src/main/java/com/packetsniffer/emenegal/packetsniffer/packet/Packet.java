@@ -101,8 +101,10 @@ public class Packet {
 		if(PacketUtil.intToIPAddress(ipHeader.getDestinationIP()).equals(PacketSnifferService.IP_ADDRESS))
 			inComing = true;
 
-		checkHTTProtocol();
-		checkTLSProtocol();
+		if(transportHeader instanceof TCPHeader) {
+			checkHTTProtocol();
+			checkTLSProtocol();
+		}
 	}
 
 	/**
