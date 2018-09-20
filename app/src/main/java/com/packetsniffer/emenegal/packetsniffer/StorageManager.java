@@ -20,25 +20,24 @@ import java.io.IOException;
 @ResourceStrategy
 public class StorageManager{
 
-    @IPrecision(lower = 0, higher = 20, method = LinearMethod.class, params = {})
-    public static double aValue;
+    @BPrecision(value = true,threshold = 90)
+    public static boolean storePacketInFile;
+    @BPrecision(value = true,threshold = 80)
+    public static boolean storeIncoming;
+    @BPrecision(value = true, threshold = 70)
+    public static boolean storeUDP ;
+    @BPrecision(value = true, threshold = 40)
+    public static boolean storeHTTP;
+    @BPrecision(value = true,threshold = 30)
+    public static boolean storeHTTPS;
+    @BPrecision(value = true,threshold = 10)
+    public static boolean storePacketInDB;
 
     public static final String TAG = StorageManager.class.getSimpleName();
 
     public static final StorageManager INSTANCE = new StorageManager();
 
-    @BPrecision(value = true,threshold = 90)
-    public static boolean storePacketInFile = true;
-    @BPrecision(value = true,threshold = 85)
-    public static boolean storeIncoming = true;
-    @BPrecision(value = true, threshold = 50)
-    public static boolean storeUDP = true;
-    @BPrecision(value = true, threshold = 35)
-    public static boolean storeHTTP = true;
-    @BPrecision(value = true,threshold = 10)
-    public static boolean storeHTTPS = true;
-    @BPrecision(value = true,threshold = 80)
-    public static boolean storePacketInDB = true;
+
 
     private StorageManager(){}
 

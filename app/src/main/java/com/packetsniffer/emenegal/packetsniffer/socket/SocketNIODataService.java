@@ -46,7 +46,7 @@ public class SocketNIODataService implements Runnable {
 
 	@Override
 	public void run() {
-		Log.d(TAG,"SocketNIODataService starting in background...");
+		//Log.d(TAG,"SocketNIODataService starting in background...");
 		selector = SessionManager.INSTANCE.getSelector();
 		runTask();
 	}
@@ -60,7 +60,7 @@ public class SocketNIODataService implements Runnable {
 	}
 
 	private void runTask(){
-		Log.d(TAG, "Selector is running...");
+		//Log.d(TAG, "Selector is running...");
 		
 		while(!shutdown){
 			try {
@@ -105,7 +105,7 @@ public class SocketNIODataService implements Runnable {
 
 	private void processUDPSelectionKey(SelectionKey key){
 		if(!key.isValid()){
-			Log.d(TAG,"Invalid SelectionKey for UDP");
+			//Log.d(TAG,"Invalid SelectionKey for UDP");
 			return;
 		}
 		DatagramChannel channel = (DatagramChannel) key.channel();
@@ -155,7 +155,7 @@ public class SocketNIODataService implements Runnable {
 					connected = channel.connect(address);
 				} catch (ClosedChannelException | UnresolvedAddressException |
 						UnsupportedAddressTypeException | SecurityException e) {
-					Log.e(TAG, e.toString());
+					//Log.e(TAG, e.toString());
 					session.setAbortingConnection(true);
 				} catch (IOException e) {
 					Log.e(TAG, e.toString());

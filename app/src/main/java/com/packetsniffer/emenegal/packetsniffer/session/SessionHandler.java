@@ -218,7 +218,7 @@ public class SessionHandler {
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
 					tcp.getDestinationPort());*/
 		} catch (IOException e) {
-			Log.e(TAG,"failed to send RST packet: " + e.getMessage());
+			//Log.e(TAG,"failed to send RST packet: " + e.getMessage());
 		}
 	}
 
@@ -232,7 +232,7 @@ public class SessionHandler {
 					PacketUtil.intToIPAddress(ip.getDestinationIP()) + ":" +
 					tcp.getDestinationPort());*/
 		} catch (IOException e) {
-			Log.e(TAG,"failed to send last ACK packet: " + e.getMessage());
+			//Log.e(TAG,"failed to send last ACK packet: " + e.getMessage());
 		}
 	}
 
@@ -283,12 +283,12 @@ public class SessionHandler {
 
 			if(vpnip != null && vpntcp != null){
 				String sout = PacketUtil.getOutput(vpnip, vpntcp, data);
-				Log.d(TAG,sout);
+				//Log.d(TAG,sout);
 			}
 			//Log.d(TAG,"0000000000000 finished sending FIN-ACK packet to vpn client 000000000000");
 
 		} catch (IOException e) {
-			Log.e(TAG,"Failed to send ACK packet: "+e.getMessage());
+			//Log.e(TAG,"Failed to send ACK packet: "+e.getMessage());
 		}
 		session.setSendNext(seq + 1);
 		//avoid re-sending it, from here client should take care the rest
@@ -321,7 +321,7 @@ public class SessionHandler {
 			packetData.addData(data);
 			PacketManager.INSTANCE.addPacket(new Packet(ipheader,tcpheader,data,0));
 		} catch (IOException e) {
-			Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
+			//Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
 		}
 	}
 
@@ -334,7 +334,7 @@ public class SessionHandler {
 			packetData.addData(data);
 			PacketManager.INSTANCE.addPacket(new Packet(ipHeader,tcpheader,data,0));
 		} catch (IOException e) {
-			Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
+			//Log.e(TAG,"Failed to send ACK packet: " + e.getMessage());
 		}
 	}
 
@@ -352,7 +352,7 @@ public class SessionHandler {
 		if(tcpHeader.getAckNumber() > session.getSendUnack() ||
 				tcpHeader.getAckNumber() == session.getSendNext()){
 			session.setAcked(true);
-			//Log.d(TAG,"Accepted ack from client, ack# "+tcpheader.getAckNumber());
+			//Log.d(TAG,"Accepted ack from client, ack# "+tcpHeader.getAckNumber());
 			
 			if(tcpHeader.getWindowSize() > 0){
 				session.setSendWindowSizeAndScale(tcpHeader.getWindowSize(), session.getSendWindowScale());
@@ -415,7 +415,7 @@ public class SessionHandler {
 			PacketManager.INSTANCE.addPacket(packet);
 			//Log.d(TAG,"Send SYN-ACK to client");
 		} catch (IOException e) {
-			Log.e(TAG,"Error sending data to client: "+e.getMessage());
+			//Log.e(TAG,"Error sending data to client: "+e.getMessage());
 		}
 	}
 

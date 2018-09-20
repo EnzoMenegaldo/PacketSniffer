@@ -57,7 +57,7 @@ public enum SessionManager {
 		try {
 			selector = Selector.open();
 		} catch (IOException e) {
-			Log.e(TAG,"Failed to create Socket Selector");
+			//Log.e(TAG,"Failed to create Socket Selector");
 		}
 	}
 
@@ -165,7 +165,7 @@ public enum SessionManager {
 				Log.d(TAG,"Session closed -> " + key);
 			}
 		}else{
-			Log.d(TAG,"Session null -> " + key);
+			//Log.d(TAG,"Session null -> " + key);
 		}
 	}
 
@@ -181,7 +181,7 @@ public enum SessionManager {
 				channel.close();
 			}
 		} catch (IOException e) {
-			Log.e(TAG, e.toString());
+			//Log.e(TAG, e.toString());
 		}finally {
 			session.close();
 			Log.d(TAG,"closed session -> " + key);
@@ -213,7 +213,7 @@ public enum SessionManager {
 		//initiate connection to reduce latency
 		String ips = PacketUtil.intToIPAddress(ip);
 		SocketAddress socketAddress = new InetSocketAddress(ips, port);
-		//Log.d(TAG,"initialized connection to remote UDP server: " + ips + ":" + port + " from " + sourceIpAddress + ":" + srcPort);
+		//Log.d(TAG,"initialized connection to remote UDP server: " + ips + ":" + port + " from " + srcIp + ":" + srcPort);
 
 		try {
 			channel.connect(socketAddress);
@@ -235,12 +235,12 @@ public enum SessionManager {
 								SelectionKey.OP_WRITE);
 					}
 					session.setSelectionKey(selectionKey);
-					//Log.d(TAG,"Registered udp selector successfully");Android debug get list size
+					//Log.d(TAG,"Registered udp selector successfully");
 				}
 			}
 		} catch (ClosedChannelException e) {
 			e.printStackTrace();
-			Log.e(TAG,"failed to register udp channel with selector: "+ e.getMessage());
+			//Log.e(TAG,"failed to register udp channel with selector: "+ e.getMessage());
 			return null;
 		}
 
@@ -264,7 +264,7 @@ public enum SessionManager {
 	public Session createNewSession(int ip, int port, int srcIp, int srcPort){
 		String key = createKey(ip, port, srcIp, srcPort);
 		if (table.containsKey(key)) {
-			Log.e(TAG, "Session was already created.");
+			//Log.e(TAG, "Session was already created.");
 			return null;
 		}
 
@@ -279,10 +279,10 @@ public enum SessionManager {
 			channel.socket().setReceiveBufferSize(DataConst.MAX_RECEIVE_BUFFER_SIZE);
 			channel.configureBlocking(false);
 		}catch(SocketException e){
-			Log.e(TAG, e.toString());
+			//Log.e(TAG, e.toString());
 			return null;
 		} catch (IOException e) {
-			Log.e(TAG,"Failed to create SocketChannel: "+ e.getMessage());
+			//Log.e(TAG,"Failed to create SocketChannel: "+ e.getMessage());
 			return null;
 		}
 		String ips = PacketUtil.intToIPAddress(ip);
@@ -299,7 +299,7 @@ public enum SessionManager {
 		try{
 			connected = channel.connect(socketAddress);
 		} catch(IOException e) {
-			Log.e(TAG, e.toString());
+			//Log.e(TAG, e.toString());
 			return null;
 		}
 
@@ -319,7 +319,7 @@ public enum SessionManager {
 			}
 		} catch (ClosedChannelException e) {
 			e.printStackTrace();
-			Log.e(TAG,"failed to register tcp channel with selector: " + e.getMessage());
+			//Log.e(TAG,"failed to register tcp channel with selector: " + e.getMessage());
 			return null;
 		}
 

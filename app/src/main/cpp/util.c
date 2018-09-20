@@ -73,6 +73,8 @@ jint get_uid(const int version, const int protocol,
         log_android(ANDROID_LOG_INFO, "uid v%d p%d %s/%u > %s/%u => %d",
                     version, protocol, source, sport, dest, dport, uid);
 
+    free(saddr);
+    free(daddr);
     return uid;
 }
 

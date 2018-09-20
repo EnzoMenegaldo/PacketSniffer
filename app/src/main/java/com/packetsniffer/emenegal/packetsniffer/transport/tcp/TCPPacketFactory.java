@@ -147,7 +147,7 @@ public class TCPPacketFactory {
 
 			ip.setTotalLength(totalLength);
 		}catch(Exception e){
-			Log.e("error",e.toString());
+			//Log.e("error",e.toString());
 		}
 		
 		return createPacketData(ip, tcp, null);

@@ -49,7 +49,7 @@ class SocketDataReaderWorker implements Runnable {
 	public void run() {
 		Session session = SessionManager.INSTANCE.getSessionByKey(sessionKey);
 		if(session == null) {
-			Log.e(TAG, "Session NOT FOUND");
+			//Log.e(TAG, "Session NOT FOUND");
 			return;
 		}
 
@@ -73,7 +73,7 @@ class SocketDataReaderWorker implements Runnable {
 						socketChannel.close();
 					}
 				} catch (IOException e) {
-					Log.e(TAG, e.toString());
+					//Log.e(TAG, e.toString());
 				}
 			} else {
 				try {
@@ -105,7 +105,7 @@ class SocketDataReaderWorker implements Runnable {
 				if(!session.isClientWindowFull()) {
 					len = channel.read(buffer);
 					if(len > 0) { //-1 mean it reach the end of stream
-						//Log.d(TAG,"SocketDataService received "+len+" from remote server: "+name);
+						//Log.d(TAG,"SocketDataService received "+len+" from remote server: ");
 						sendToRequester(buffer, len, session);
 						buffer.clear();
 					} else if(len == -1) {
@@ -115,20 +115,20 @@ class SocketDataReaderWorker implements Runnable {
 						session.setAbortingConnection(true);
 					}
 				} else {
-					Log.e(TAG,"*** client window is full, now pause for " + sessionKey);
+					//Log.e(TAG,"*** client window is full, now pause for " + sessionKey);
 					break;
 				}
 			} while(len > 0);
 		}catch(NotYetConnectedException e){
-			Log.e(TAG,"socket not connected");
+			//Log.e(TAG,"socket not connected");
 		}catch(ClosedByInterruptException e){
-			Log.e(TAG,"ClosedByInterruptException reading SocketChannel: "+ e.getMessage());
+			//Log.e(TAG,"ClosedByInterruptException reading SocketChannel: "+ e.getMessage());
 			//session.setAbortingConnection(true);
 		}catch(ClosedChannelException e){
-			Log.e(TAG,"ClosedChannelException reading SocketChannel: "+ e.getMessage());
+			//Log.e(TAG,"ClosedChannelException reading SocketChannel: "+ e.getMessage());
 			//session.setAbortingConnection(true);
 		} catch (IOException e) {
-			Log.e(TAG,"Error reading data from SocketChannel: "+ e.getMessage());
+			//Log.e(TAG,"Error reading data from SocketChannel: "+ e.getMessage());
 			session.setAbortingConnection(true);
 		}
 	}
@@ -146,7 +146,7 @@ class SocketDataReaderWorker implements Runnable {
 		byte[] data = new byte[dataSize];
 		System.arraycopy(buffer.array(), 0, data, 0, dataSize);
 		session.addReceivedData(data);
-		//Log.d(TAG,"DataService added "+data.length+" to session. session.getReceivedDataSize(): "+session.getReceivedDataSize());
+		//Log.d(TAG,"DataService added "+data.length+" to session. session.getReceivedDataSize(): ");
 		//pushing all data to vpn client
 		while(session.hasReceivedData()){
 			pushDataToClient(session);
@@ -159,7 +159,7 @@ class SocketDataReaderWorker implements Runnable {
 	private void pushDataToClient(@NonNull Session session){
 		if(!session.hasReceivedData()){
 			//no data to send
-			Log.d(TAG,"no data for vpn client");
+			//Log.d(TAG,"no data for vpn client");
 		}
 
 		IPv4Header ipHeader = session.getLastIpHeader();
@@ -191,7 +191,7 @@ class SocketDataReaderWorker implements Runnable {
 				pData.addData(data);
 				PacketManager.INSTANCE.addPacket(new Packet(ipHeader,tcpheader,data,packetBody.length));
 			} catch (IOException e) {
-				Log.e(TAG,"Failed to send ACK + Data packet: " + e.getMessage());
+				//Log.e(TAG,"Failed to send ACK + Data packet: " + e.getMessage());
 			}
 		}
 	}
@@ -207,7 +207,7 @@ class SocketDataReaderWorker implements Runnable {
 			pData.addData(data);
 			PacketManager.INSTANCE.addPacket(new Packet(session.getLastIpHeader(),session.getLastTcpHeader(),data,0));
 		} catch (IOException e) {
-			Log.e(TAG,"Failed to send FIN packet: " + e.getMessage());
+			//Log.e(TAG,"Failed to send FIN packet: " + e.getMessage());
 		}
 	}
 	private void readUDP(Session session){
@@ -237,8 +237,7 @@ class SocketDataReaderWorker implements Runnable {
 					//publish to packet subscriber
 					pData.addData(packetData);
 					PacketManager.INSTANCE.addPacket(new Packet(session.getLastIpHeader(),session.getLastUdpHeader(),data,0));
-					Log.d(TAG,"SDR: sent " + len + " bytes to UDP client, packetData.length: "
-							+ packetData.length);
+					//Log.d(TAG,"SDR: sent " + len + " bytes to UDP client, packetData.length: "+ packetData.length);
 					buffer.clear();
 					
 					try {
@@ -246,20 +245,20 @@ class SocketDataReaderWorker implements Runnable {
 						IPv4Header ip = IPPacketFactory.createIPv4Header(stream);
 						UDPHeader udp = UDPPacketFactory.createUDPHeader(stream);
 						String str = PacketUtil.getUDPoutput(ip, udp);
-						Log.d(TAG,"++++++ SD: packet sending to client ++++++++");
-						Log.i(TAG,"got response time: " + responseTime);
-						Log.d(TAG,str);
-						Log.d(TAG,"++++++ SD: end sending packet to client ++++");
+						//Log.d(TAG,"++++++ SD: packet sending to client ++++++++");
+						//Log.i(TAG,"got response time: " + responseTime);
+						//Log.d(TAG,str);
+						//Log.d(TAG,"++++++ SD: end sending packet to client ++++");
 					} catch (PacketHeaderException e) {
 						e.printStackTrace();
 					}
 				}
 			} while(len > 0);
 		}catch(NotYetConnectedException ex){
-			Log.e(TAG,"failed to read from unconnected UDP socket");
+			//Log.e(TAG,"failed to read from unconnected UDP socket");
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.e(TAG,"Failed to read from UDP socket, aborting connection");
+			//Log.e(TAG,"Failed to read from UDP socket, aborting connection");
 			session.setAbortingConnection(true);
 		}
 	}

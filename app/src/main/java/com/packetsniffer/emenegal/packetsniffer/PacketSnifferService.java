@@ -270,7 +270,7 @@ public class PacketSnifferService extends VpnService implements Handler.Callback
 				Log.e(TAG, "CANNOT make " + traceDir.toString());
 
 		// gen & open pcap file
-		String sFileName = TAG+"_"+ OrmLiteActionBarActivity.TIME+".pcapng";
+		String sFileName = TAG+"_"+ OrmLiteActionBarActivity.TIME+"_"+ System.currentTimeMillis()+".pcapng";
 		File pcapFile = new File(traceDir, sFileName);
 		pcapOutput = new PCapFileWriter(pcapFile);
 	}

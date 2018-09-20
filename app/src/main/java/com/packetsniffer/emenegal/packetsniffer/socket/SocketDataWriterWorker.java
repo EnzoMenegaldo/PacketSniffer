@@ -100,11 +100,11 @@ public class SocketDataWriterWorker implements Runnable {
 			session.connectionStartTime = dt.getTime();
 		}catch(NotYetConnectedException ex2){
 			session.setAbortingConnection(true);
-			Log.e(TAG,"Error writing to unconnected-UDP server, will abort current connection: "+ex2.getMessage());
+			//Log.e(TAG,"Error writing to unconnected-UDP server, will abort current connection: "+ex2.getMessage());
 		} catch (IOException e) {
 			session.setAbortingConnection(true);
 			e.printStackTrace();
-			Log.e(TAG,"Error writing to UDP server, will abort connection: "+e.getMessage());
+			//Log.e(TAG,"Error writing to UDP server, will abort connection: "+e.getMessage());
 		}
 	}
 	
@@ -124,9 +124,9 @@ public class SocketDataWriterWorker implements Runnable {
 			channel.write(buffer);
 			//Log.d(TAG,"finished writing data to: "+name);
 		} catch (NotYetConnectedException ex) {
-			Log.e(TAG,"failed to write to unconnected socket: " + ex.getMessage());
+			//Log.e(TAG,"failed to write to unconnected socket: " + ex.getMessage());
 		} catch (IOException e) {
-			Log.e(TAG,"Error writing to server: " + e.getMessage());
+			//Log.e(TAG,"Error writing to server: " + e.getMessage());
 			
 			//close connection with vpn client
 			byte[] rstData = TCPPacketFactory.createRstData(
@@ -140,7 +140,7 @@ public class SocketDataWriterWorker implements Runnable {
 				ex.printStackTrace();
 			}
 			//remove session
-			Log.e(TAG,"failed to write to remote socket, aborting connection");
+			//Log.e(TAG,"failed to write to remote socket, aborting connection");
 			session.setAbortingConnection(true);
 		}
 	}
