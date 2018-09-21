@@ -5,9 +5,6 @@ buildscript {
     repositories {
         google()
         jcenter()
-        flatDir {
-            dirs 'aars'
-        }
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
@@ -21,6 +18,7 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenLocal()
         google()
         jcenter()
     }
